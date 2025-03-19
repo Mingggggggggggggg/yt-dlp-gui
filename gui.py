@@ -76,8 +76,8 @@ def start_gui():
     # Kategorien mit Überschriften und Tooltips
     checkbox_categories = {
         "Quick Access": {
-            "recode-video": " Re-encode the video into another format if necessary",
-            "extract-audio": " Convert video files to audio-only files",
+            "recode-video": " Re-encode the video into another format if necessary this includes audio formats",
+            "[Entfernt]": " Convert video files to audio-only files",
             "write-thumbnail": "DEFAULT:  Do not write thumbnail image to disk",
             "write-all-thumbnails": "Write all thumbnail image formats to disk",
             "list-thumbnails": "List available thumbnails of each video",
@@ -130,13 +130,11 @@ def start_gui():
     file_formats = {
         "M4A": "Audioformat von Apple",
         "MP4": "Standard-Videoformat",
-        "WebM": "Google Videoformat",
+        "FLV": "Flash Videoformat",
         "WAV": "Unkomprimiertes Audioformat",
         "OGG": "Offenes Audioformat",
-        "FLV": "Flash Videoformat",
-        "AAC": "Fortgeschrittenes Audioformat",
-        "3GP": "Altes Handyformat",
-        "MP3": "Beliebtes Audioformat"
+        "MP3": "Beliebtes Audioformat",
+        "WebM": "Google Videoformat"
     }
 
     selected_format = tk.StringVar(root)
