@@ -4,3 +4,9 @@
 
 def initialize():
     pass
+
+def create_json():
+    pass
+
+def load_json():
+    pass
