@@ -1,3 +1,4 @@
+# Zeit drangesessen: 3h
 import tkinter as tk
 
 class ToolTip:
