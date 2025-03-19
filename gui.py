@@ -32,15 +32,15 @@ def start_gui():
 
     # Eigene Namen für die Checkboxen
     checkbox_names = [
-        "Audio", "Video", "Untertitel", "1080p", "720p", 
-        "480p", "MP4", "MKV", "WebM", "Null"
+        "Audio", "Video", "Untertitel", "1080p", "720p", "480p", 
+        "MP4", "MKV", "WebM", "A", "B", "C"
     ]
 
     checkboxes = []
-    for i in range(5):  # Y Achse
+    for i in range(6):  # Y Achse
         for j in range(2):  # X Achse
             var = tk.BooleanVar()
-            checkbox = tk.Checkbutton(checkbox_frame, text=checkbox_names[i + j], variable=var)
+            checkbox = tk.Checkbutton(checkbox_frame, text=checkbox_names[i * 2 + j], variable=var)
             checkbox.grid(row=j, column=i, padx=5, pady=5)
             checkboxes.append(var)  # Falls du später die Werte abrufen willst
 
