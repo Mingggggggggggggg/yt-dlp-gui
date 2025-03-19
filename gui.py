@@ -45,7 +45,7 @@ class ToolTip:
 def start_gui():
     root = tk.Tk()
     root.title("YT-DLP GUI")
-    root.geometry('550x400')
+    root.geometry('700x400')
     root.resizable(False, False)
 
     input_frame = tk.Frame(root)
@@ -74,29 +74,29 @@ def start_gui():
 
     # Kategorien mit Überschriften und Tooltips
     checkbox_categories = {
-        "Qualität": {
-            "1080p": "Lädt Videos in 1080p herunter",
-            "720p": "Lädt Videos in 720p herunter",
-            "480p": "Lädt Videos in 480p herunter",
-            "360p": "Lädt Videos in 360p herunter",
-            "240p": "Lädt Videos in 240p herunter",
-            "144p": "Lädt Videos in 144p herunter"
+        "Quick Access": {
+            "recode-video": " Re-encode the video into another format if necessary",
+            "extract-audio": " Convert video files to audio-only files",
+            "write-thumbnail": "DEFAULT:  Do not write thumbnail image to disk",
+            "write-all-thumbnails": "Write all thumbnail image formats to disk",
+            "list-thumbnails": "List available thumbnails of each video",
+            "keep-video": "Keep the intermediate video file on disk after post-processing"
         },
-        "Dateiformat": {
-            "MP4": "Standard-Videoformat, weit verbreitet",
-            "MKV": "Hochwertiges Videoformat mit mehreren Streams",
-            "WebM": "Für Web-Streaming optimiertes Format",
-            "FLV": "Flash-Videoformat",
-            "3GP": "Altes Format für Mobiltelefone",
-            "AVI": "Älteres Videoformat mit guter Qualität"
+        "Post-Processing Options": {
+            "audio-format": "Standard-Videoformat, weit verbreitet", # Separates Dropdown
+            "audio-quality": "Hochwertiges Videoformat mit mehreren Streams", # Dropdown
+            "postprocessor-args": "Für Web-Streaming optimiertes Format", # Dropdown
+            "PL1": "Flash-Videoformat",
+            "PL2": "Altes Format für Mobiltelefone",
+            "PL3": "Älteres Videoformat mit guter Qualität"
         },
-        "Optionen": {
-            "--recode-video": "Erzwingt eine Konvertierung des Videos",
-            "Video": "Lädt nur das Video herunter",
-            "Untertitel": "Lädt verfügbare Untertitel herunter",
-            "Audio": "Lädt nur die Audiospur herunter",
-            "B": "Platzhalter-Option B",
-            "C": "Platzhalter-Option C"
+        "PLAYLIST KRAM HIER": {
+            "PL4": "Erzwingt eine Konvertierung des Videos",
+            "PL5": "Lädt nur das Video herunter",
+            "PL6": "Lädt verfügbare Untertitel herunter",
+            "PL7": "Lädt nur die Audiospur herunter",
+            "PL8": "Platzhalter-Option B",
+            "PL9": "Platzhalter-Option C"
         }
     }
 
