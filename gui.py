@@ -1,6 +1,8 @@
 # Zeit drangesessen: 3h
 import tkinter as tk
 
+from settings import create_dict_out_of_setting
+
 class ToolTip:
     """ Klasse für Tooltip mit einstellbarer Verzögerung """
     def __init__(self, widget, text, delay=100):  # Delay in Millisekunden (Standard 1 Sekunde)
@@ -116,7 +118,9 @@ def start_gui():
             checkbox = tk.Checkbutton(row_frame, text=name, variable=var)
             checkbox.pack(side="left", padx=5)
             ToolTip(checkbox, tooltip_text, delay=1000)  # Tooltip erscheint nach 1 Sekunde
-            checkboxes.append(var)
+            checkboxes.append((name, var)) 
+    
+    
 
     # Frame für das Dropdown-Menü
     dropdown_frame = tk.Frame(root)
@@ -146,7 +150,8 @@ def start_gui():
     dropdown_menu = tk.OptionMenu(dropdown_frame, selected_format, *file_formats.keys())
     dropdown_menu.pack(side='left', padx=5)
     ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)  # Tooltip mit Verzögerung
-
+    d = create_dict_out_of_setting(input_field,checkboxes,selected_format)
+    print(d)
     root.mainloop()
 
 if __name__ == "__main__":
