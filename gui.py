@@ -1,6 +1,7 @@
 # Zeit drangesessen: 3h
 import tkinter as tk
-
+from tkinter import ttk
+from cmd_command_use import downlodad_with_cmd, queue_download_with_cmd
 from settings import create_dict_out_of_setting
 
 class ToolTip:
@@ -129,6 +130,7 @@ def start_gui():
     # Label für das Dropdown
     dropdown_label = tk.Label(dropdown_frame, text="Dateiformat auswählen:", font=("Arial", 10))
     dropdown_label.pack(side='left', padx=5)
+   
 
     # Optionen für das Dropdown-Menü
     file_formats = {
@@ -137,7 +139,7 @@ def start_gui():
         "WebM": "Google Videoformat",
         "WAV": "Unkomprimiertes Audioformat",
         "OGG": "Offenes Audioformat",
-        "FLV": "Flash Videoformat",
+        "FLV": "Flash Videoformat", 
         "AAC": "Fortgeschrittenes Audioformat",
         "3GP": "Altes Handyformat",
         "MP3": "Beliebtes Audioformat"
@@ -148,10 +150,36 @@ def start_gui():
 
     # Dropdown-Menü erstellen
     dropdown_menu = tk.OptionMenu(dropdown_frame, selected_format, *file_formats.keys())
-    dropdown_menu.pack(side='left', padx=5)
+    dropdown_menu.pack(side='right', padx=5)
     ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)  # Tooltip mit Verzögerung
-    d = create_dict_out_of_setting(input_field,checkboxes,selected_format)
-    print(d)
+    
+    
+    
+   #Download-Mangement erstellen
+    download_frame = tk.Frame(root)
+    download_frame.pack(pady=10)
+    Download_Manger = queue_download_with_cmd()
+    Download_Manger.start_download_able()
+
+    # Pack progressbar first with side="left"
+    download_progressbar = ttk.Progressbar(download_frame)
+    download_progressbar.pack(side="left", padx=5)
+
+    def download():
+        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format)
+        runable = downlodad_with_cmd(settings_dict,download_progressbar)        
+        Download_Manger.put(runable)
+
+    # Pack button second with side="left" to appear after progressbar
+    download_button = tk.Button(download_frame, text="Download", font=("Arial", 10), command=download)
+    download_button.pack(side="right", padx=5)
+    
+    
+
+
+    
+
+
     root.mainloop()
 
 if __name__ == "__main__":

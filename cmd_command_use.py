@@ -3,6 +3,8 @@ import subprocess
 import threading
 import time
 import re 
+import tkinter as tk
+from tkinter import ttk
 
 #Help Function for use not relevant for class 
 command_args = {
@@ -10,7 +12,8 @@ command_args = {
         "write-thumbnail":"--write-thumbnail",
         "write-all-thumbnails":"--write-all-thumbnails",
         "list-thumbnails":"--list-thumbnails ",
-        "keep-video":"-k"
+        "keep-video":"-k",
+        "M4A":"m4a"
         }
 
 def parse_download_output(output_text):
@@ -44,11 +47,12 @@ def get_latest_progress(output_text):
  
 class downlodad_with_cmd():
     
-    def __init__(self,json_settings:dict):
+    def __init__(self,json_settings:dict,progress_bar:ttk.Progressbar=None):
         command_parts = []
+        self.progress_bar = progress_bar
         command_parts.append(".\\yt-dlp.exe")
         command_parts.append(json_settings["youtube_url"])
-        command_parts.append(" ".join([command_args["Re-encode"], json_settings["file_formate"]])) 
+        command_parts.append(" ".join([command_args["Re-encode"], command_args[json_settings["file_formate"]]])) 
         
         
         for arg in list(json_settings):
@@ -56,7 +60,8 @@ class downlodad_with_cmd():
                 command_parts.append(command_args[arg])
         
         self.command = " ".join(command_parts)
-        pass
+        print(self.command)
+        
     
 
     def run (self):
@@ -64,16 +69,14 @@ class downlodad_with_cmd():
         while True:
             output = process.stdout.readline()
             if(output == "" and process.poll() is not None):
+                self.progress_bar["value"] = 0
                 break
             if output:
                 latest = get_latest_progress(output)
                 if latest is not None:
+                    if self.progress_bar is not None:
+                       self.progress_bar["value"] = latest['progress']
                     print(f"Progress: {latest['progress']}%, Speed: {latest['speed']}, ETA: {latest['eta']}")
-
-
-                
-
-
 
 
 class queue_download_with_cmd():
@@ -122,6 +125,7 @@ if __name__ == "__main__":
     befehl2 = downlodad_with_cmd(dic2)
     befehl3 = downlodad_with_cmd(dic3)
     download_manager = queue_download_with_cmd()
+    time.sleep(20)
     download_manager.start_download_able()
     download_manager.put(befehl)
     download_manager.put(befehl2)
