@@ -13,11 +13,34 @@ command_args = {
         "keep-video":"-k"
         }
 
-def parse_progress(output):
-        match = re.search(r"Progress: (\d+)%", output)
-        if match:
-            return int(match.group(1))
-        return None
+def parse_download_output(output_text):
+    # Define regex pattern to extract information
+    pattern = r'\[download\]\s+(\d+\.\d+)% of\s+(\d+\.\d+\w+) at\s+(\d+\.\d+\w+/s|\d+\.\d+\w+) ETA (\d+:\d+)'
+    
+    # Find all matches in the output text
+    matches = re.findall(pattern, output_text)
+    
+    results = []
+    for match in matches:
+        progress = float(match[0])
+        size = match[1]
+        speed = match[2]
+        eta = match[3]
+        
+        results.append({
+            'progress': progress,
+            'size': size,
+            'speed': speed,
+            'eta': eta
+        })
+    
+    return results
+
+def get_latest_progress(output_text):
+    results = parse_download_output(output_text)
+    if results:
+        return results[-1]
+    return None
  
 class downlodad_with_cmd():
     
@@ -43,9 +66,12 @@ class downlodad_with_cmd():
             if(output == "" and process.poll() is not None):
                 break
             if output:
-                progress = parse_progress(output)
-                if progress is not None:
-                    print(f"Progress: {progress}%")
+                latest = get_latest_progress(output)
+                if latest is not None:
+                    print(f"Progress: {latest['progress']}%, Speed: {latest['speed']}, ETA: {latest['eta']}")
+
+
+                
 
 
 
@@ -56,6 +82,9 @@ class queue_download_with_cmd():
         self.q = queue.Queue()
         self.isdownloading = False
 
+    def put(self, run_able_objeckt: downlodad_with_cmd):
+        self.q.put(run_able_objeckt)
+    
     def start_download_able(self):
         def run_if_able():
             while True:
@@ -71,18 +100,35 @@ class queue_download_with_cmd():
         thread = threading.Thread(target=run_if_able, daemon=True)
         thread.start() 
     
-    def put(self, run_able_objeckt: downlodad_with_cmd):
-        self.q.put(run_able_objeckt)
+   
 
 
 
 if __name__ == "__main__":
-    #download = queue_download_with_cmd()
-    #download.start_download_able()
+   
     dic ={
         "youtube_url": "https://www.youtube.com/watch?v=T2FtOJnf9M8",
         "file_formate":"m4a"
     }
+    dic2 ={
+        "youtube_url": "https://www.youtube.com/watch?v=r9oeYna3F7Q",
+        "file_formate":"m4a"
+    }
+    dic3 ={
+        "youtube_url": "https://www.youtube.com/watch?v=QKyxxhqx7Xo",
+        "file_formate":"m4a"
+    }
     befehl = downlodad_with_cmd(dic)
-    befehl.run()
+    befehl2 = downlodad_with_cmd(dic2)
+    befehl3 = downlodad_with_cmd(dic3)
+    download_manager = queue_download_with_cmd()
+    download_manager.start_download_able()
+    download_manager.put(befehl)
+    download_manager.put(befehl2)
+    download_manager.put(befehl3)
+    time.sleep(200)
+   
+
+   
+   
     
