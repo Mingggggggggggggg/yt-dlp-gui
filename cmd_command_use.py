@@ -22,14 +22,17 @@ def parse_progress(output):
 class downlodad_with_cmd():
     
     def __init__(self,json_settings:dict):
-        command_parts = [".\yt-dlp.exe"]
+        command_parts = []
+        command_parts.append(".\\yt-dlp.exe")
         command_parts.append(json_settings["youtube_url"])
-        command_parts.append("".join([command_args["Re-encode"], json_settings["file_formate"]])) 
-        for arg in json_settings.keys[1:]:
-            if arg in command_args.keys:
+        command_parts.append(" ".join([command_args["Re-encode"], json_settings["file_formate"]])) 
+        
+        
+        for arg in list(json_settings):
+            if arg in list(command_args):
                 command_parts.append(command_args[arg])
         
-        self.command = "".join(command_parts)
+        self.command = " ".join(command_parts)
         pass
     
 
@@ -74,6 +77,12 @@ class queue_download_with_cmd():
 
 
 if __name__ == "__main__":
-    download = queue_download_with_cmd()
-    download.start_download_able()
-    time.sleep(10)
+    #download = queue_download_with_cmd()
+    #download.start_download_able()
+    dic ={
+        "youtube_url": "https://www.youtube.com/watch?v=T2FtOJnf9M8",
+        "file_formate":"m4a"
+    }
+    befehl = downlodad_with_cmd(dic)
+    befehl.run()
+    
