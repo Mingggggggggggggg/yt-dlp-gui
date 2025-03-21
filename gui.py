@@ -1,33 +1,30 @@
-# Zeit drangesessen: 3h
 import tkinter as tk
+from tkinter import filedialog
+import os
 
 class ToolTip:
     """ Klasse für Tooltip mit einstellbarer Verzögerung """
-    def __init__(self, widget, text, delay=100):  # Delay in Millisekunden (Standard 1 Sekunde)
+    def __init__(self, widget, text, delay=1000):  # 1 Sekunde Verzögerung
         self.widget = widget
         self.text = text
         self.tooltip_window = None
         self.delay = delay
         self.after_id = None
 
-        # Event-Bindings für Mausbewegungen
         widget.bind("<Enter>", self.schedule_tooltip)
         widget.bind("<Leave>", self.cancel_tooltip)
 
     def schedule_tooltip(self, event=None):
-        """ Starte Timer für Tooltip-Verzögerung """
-        self.cancel_tooltip()  # Falls schon ein alter Timer läuft, abbrechen
+        self.cancel_tooltip()
         self.after_id = self.widget.after(self.delay, self.show_tooltip)
 
     def cancel_tooltip(self, event=None):
-        """ Stoppt den Timer und entfernt Tooltip, falls sichtbar """
         if self.after_id:
-            self.widget.after_cancel(self.after_id)  # Timer abbrechen
+            self.widget.after_cancel(self.after_id)
             self.after_id = None
         self.hide_tooltip()
 
     def show_tooltip(self):
-        """ Tooltip anzeigen, wenn der Timer abgelaufen ist """
         x = self.widget.winfo_rootx() + 20
         y = self.widget.winfo_rooty() + 20
         self.tooltip_window = tk.Toplevel(self.widget)
@@ -37,77 +34,65 @@ class ToolTip:
         label.pack()
 
     def hide_tooltip(self):
-        """ Tooltip ausblenden """
         if self.tooltip_window:
             self.tooltip_window.destroy()
             self.tooltip_window = None
 
 
+def select_download_path():
+    """ Öffnet den Explorer, um einen Download-Pfad auszuwählen """
+    path = filedialog.askdirectory()
+    if path:
+        path_var.set(path)  # Setzt das Label auf den gewählten Pfad
+
+
 def start_gui():
     root = tk.Tk()
     root.title("YT-DLP GUI")
-    root.geometry('700x400')
+    root.geometry('700x500')
     root.resizable(False, False)
 
+    # Standardpfad ist das Verzeichnis der ausführenden Datei
+    default_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Eingabefeld für YouTube-Link
     input_frame = tk.Frame(root)
     input_frame.pack(pady=10)
 
-    # Beschriftung für das Eingabefeld
-    input_label = tk.Label(input_frame, text="YouTube-Link:", font=("Arial", 10))
-    input_label.pack(side='left')
-
-    # Eingabefeld
+    tk.Label(input_frame, text="YouTube-Link:", font=("Arial", 10)).pack(side='left')
     input_field = tk.Text(input_frame, height=1, width=50)
     input_field.pack(side='left', padx=5)
 
-    # Funktion zum Einfügen aus der Zwischenablage
     def paste_from_clipboard():
         input_field.delete("1.0", tk.END)
         input_field.insert(tk.END, root.clipboard_get())
 
-    # Paste-Button
-    paste_button = tk.Button(input_frame, text="Paste", command=paste_from_clipboard)
-    paste_button.pack(side='left', padx=5)
+    tk.Button(input_frame, text="Paste", command=paste_from_clipboard).pack(side='left', padx=5)
 
-    # Frame für Checkboxen
+    # Checkboxen
     checkbox_frame = tk.Frame(root)
     checkbox_frame.pack(pady=10)
 
-    # Kategorien mit Überschriften und Tooltips
     checkbox_categories = {
         "Quick Access": {
-            "recode-video": " Re-encode the video into another format if necessary this includes audio formats",
-            "[Entfernt]": " Convert video files to audio-only files",
-            "write-thumbnail": "DEFAULT:  Do not write thumbnail image to disk",
+            "write-thumbnail": "Write thumbnail image to disk (default off)",
             "write-all-thumbnails": "Write all thumbnail image formats to disk",
             "list-thumbnails": "List available thumbnails of each video",
-            "keep-video": "Keep the intermediate video file on disk after post-processing"
+            "keep-video": "Originaldatei behalten",
+            "postprocessor-args": "Zusätzliche Argumente für Post-Processing"
         },
-        "Post-Processing Options": {
-            "audio-format": "Standard-Videoformat, weit verbreitet", # Separates Dropdown
-            "audio-quality": "Hochwertiges Videoformat mit mehreren Streams", # Dropdown
-            "postprocessor-args": "Für Web-Streaming optimiertes Format", # Dropdown
-            "PL1": "Flash-Videoformat",
-            "PL2": "Altes Format für Mobiltelefone",
-            "PL3": "Älteres Videoformat mit guter Qualität"
-        },
-        "PLAYLIST KRAM HIER": {
-            "PL4": "Erzwingt eine Konvertierung des Videos",
-            "PL5": "Lädt nur das Video herunter",
-            "PL6": "Lädt verfügbare Untertitel herunter",
-            "PL7": "Lädt nur die Audiospur herunter",
-            "PL8": "Platzhalter-Option B",
-            "PL9": "Platzhalter-Option C"
+        "Misc": {
+            "abort-on-error": "Off by default",
+            "dump-json": "Print JSON information for each video",
+            "write-subs": "Write subtitle file (default off)",
+            "write-auto-subs": "Write automatically generated subtitle file"
         }
     }
 
     checkboxes = []
 
     for category, options in checkbox_categories.items():
-        # Überschrift für die Kategorie
-        label = tk.Label(checkbox_frame, text=category, font=("Arial", 10, "bold"))
-        label.pack(anchor="w", pady=(5, 2))
-
+        tk.Label(checkbox_frame, text=category, font=("Arial", 10, "bold")).pack(anchor="w", pady=(5, 2))
         row_frame = tk.Frame(checkbox_frame)
         row_frame.pack()
 
@@ -115,37 +100,67 @@ def start_gui():
             var = tk.BooleanVar()
             checkbox = tk.Checkbutton(row_frame, text=name, variable=var)
             checkbox.pack(side="left", padx=5)
-            ToolTip(checkbox, tooltip_text, delay=1000)  # Tooltip erscheint nach 1 Sekunde
+            ToolTip(checkbox, tooltip_text, delay=1000)
             checkboxes.append(var)
 
-    # Frame für das Dropdown-Menü
+    # Dropdown-Menü für Dateiformat
     dropdown_frame = tk.Frame(root)
     dropdown_frame.pack(pady=10)
 
-    # Label für das Dropdown
-    dropdown_label = tk.Label(dropdown_frame, text="Dateiformat auswählen:", font=("Arial", 10))
-    dropdown_label.pack(side='left', padx=5)
+    tk.Label(dropdown_frame, text="Select Fileformat:", font=("Arial", 10)).pack(side='left', padx=5)
 
-    # Optionen für das Dropdown-Menü
     file_formats = {
-        "M4A": "Audioformat von Apple",
-        "MP4": "Standard-Videoformat",
+        "M4A": "MPEG-4 Audio, Apple Audio File",
+        "MP4": "Standard Videoformat",
         "FLV": "Flash Videoformat",
-        "WAV": "Unkomprimiertes Audioformat",
-        "OGG": "Offenes Audioformat",
-        "MP3": "Beliebtes Audioformat",
+        "WAV": "Uncompressed Audioformat",
+        "OGG": "Open Audioformat",
+        "MP3": "Audioformat",
         "WebM": "Google Videoformat"
     }
 
     selected_format = tk.StringVar(root)
     selected_format.set(list(file_formats.keys())[0])  # Standardwert setzen
 
-    # Dropdown-Menü erstellen
     dropdown_menu = tk.OptionMenu(dropdown_frame, selected_format, *file_formats.keys())
     dropdown_menu.pack(side='left', padx=5)
-    ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)  # Tooltip mit Verzögerung
+    ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)
+
+    # Download-Pfad
+    path_frame = tk.Frame(root)
+    path_frame.pack(pady=10)
+
+    custom_path_var = tk.BooleanVar()
+    path_var = tk.StringVar(value=default_path)  # Standard = Ordner der Datei
+
+    def toggle_path_selection():
+        """ Aktiviert/Deaktiviert den Button zur Pfadauswahl """
+        path_button.config(state="normal" if custom_path_var.get() else "disabled")
+        if not custom_path_var.get():
+            path_var.set(default_path)  # Zurücksetzen auf Root-Ordner der Datei
+
+    path_checkbox = tk.Checkbutton(path_frame, text="Custom Download Path", variable=custom_path_var, command=toggle_path_selection)
+    path_checkbox.pack(side="left", padx=5)
+
+    path_button = tk.Button(path_frame, text="Ordner auswählen", command=select_download_path, state="disabled")
+    path_button.pack(side="left", padx=5)
+
+    path_label = tk.Label(path_frame, textvariable=path_var, font=("Arial", 10))
+    path_label.pack(side="left", padx=5)
+
+
+    # Download-Buttons unten
+    button_frame = tk.Frame(root)
+    button_frame.pack(side="bottom", pady=10, fill="x")
+
+    download_button = tk.Button(button_frame, text="Download", width=15)
+    download_button.pack(side="left", expand=True, padx=10)
+
+    abort_button = tk.Button(button_frame, text="Abort", width=15)
+    abort_button.pack(side="right", expand=True, padx=10)
 
     root.mainloop()
+
 
 if __name__ == "__main__":
     start_gui()
