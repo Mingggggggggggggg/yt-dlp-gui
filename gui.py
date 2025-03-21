@@ -105,6 +105,7 @@ def start_gui():
             checkbox.pack(side="left", padx=5)
             ToolTip(checkbox, tooltip_text, delay=1000)
             checkboxes.append(var)
+
     # Dropdown-Menü für Dateiformat
     dropdown_frame = tk.Frame(root)
     dropdown_frame.pack(pady=10)
@@ -125,7 +126,6 @@ def start_gui():
     selected_format.set(list(file_formats.keys())[0])  # Standardwert setzen
 
     dropdown_menu = tk.OptionMenu(dropdown_frame, selected_format, *file_formats.keys())
-
     dropdown_menu.pack(side='left', padx=5)
     ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)
 
@@ -151,46 +151,35 @@ def start_gui():
     path_label = tk.Label(path_frame, textvariable=path_var, font=("Arial", 10))
     path_label.pack(side="left", padx=5)
 
-
-    # Download-Buttons unten
-    button_frame = tk.Frame(root)
-    button_frame.pack(side="bottom", pady=10, fill="x")
-
-    download_button = tk.Button(button_frame, text="Download", width=15)
-    download_button.pack(side="left", expand=True, padx=10)
-
-    abort_button = tk.Button(button_frame, text="Abort", width=15)
-    abort_button.pack(side="right", expand=True, padx=10)
-
-    dropdown_menu.pack(side='right', padx=5)
-    ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)  # Tooltip mit Verzögerung
-    
-    
-    
-   #Download-Mangement erstellen
-    download_frame = tk.Frame(root)
-    download_frame.pack(pady=10)
+    # Download-Mangement erstellen
     Download_Manger = queue_download_with_cmd()
     Download_Manger.start_download_able()
 
-    # Pack progressbar first with side="left"
-    download_progressbar = ttk.Progressbar(download_frame)
-    download_progressbar.pack(side="left", padx=5)
-
     def download():
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format)
-        runable = downlodad_with_cmd(settings_dict,download_progressbar)        
+        runable = downlodad_with_cmd(settings_dict, download_progressbar)
         Download_Manger.put(runable)
 
-    # Pack button second with side="left" to appear after progressbar
-    download_button = tk.Button(download_frame, text="Download", font=("Arial", 10), command=download)
-    download_button.pack(side="right", padx=5)
-    
-    
+    # Download-Button über den anderen Buttons
+    download_button_frame = tk.Frame(root)
+    download_button_frame.pack(side="bottom", pady=5, fill="x")
 
+    download_button = tk.Button(download_button_frame, text="Download", font=("Arial", 10), width=15, command=download)
+    download_button.pack(expand=True, padx=10)
 
-    
+    # Fortschrittsbalken unten über die gesamte Breite
+    progressbar_frame = tk.Frame(root)
+    progressbar_frame.pack(side="bottom", fill="x", padx=10, pady=5)
 
+    download_progressbar = ttk.Progressbar(progressbar_frame, mode="determinate")
+    download_progressbar.pack(fill="x", expand=True)
+
+    # Download- und Abort-Buttons unten
+    button_frame = tk.Frame(root)
+    button_frame.pack(side="bottom", pady=10, fill="x")
+
+    abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15)
+    abort_button.pack(side="right", expand=True, padx=10)
 
     root.mainloop()
 
