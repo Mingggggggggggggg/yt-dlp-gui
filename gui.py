@@ -46,7 +46,7 @@ def select_download_path():
     """ Öffnet den Explorer, um einen Download-Pfad auszuwählen """
     path = filedialog.askdirectory()
     if path:
-        path_var.set(path)  # Setzt das Label auf den gewählten Pfad
+        path_var.set(path)  # type: ignore # Setzt das Label auf den gewählten Pfad
 
 
 def start_gui():
