@@ -42,11 +42,7 @@ class ToolTip:
             self.tooltip_window = None
 
 
-def select_download_path():
-    """ Öffnet den Explorer, um einen Download-Pfad auszuwählen """
-    path = filedialog.askdirectory()
-    if path:
-        path_var.set(path)  # type: ignore # Setzt das Label auf den gewählten Pfad
+
 
 
 def start_gui():
@@ -104,7 +100,7 @@ def start_gui():
             checkbox = tk.Checkbutton(row_frame, text=name, variable=var)
             checkbox.pack(side="left", padx=5)
             ToolTip(checkbox, tooltip_text, delay=1000)
-            checkboxes.append(var)
+            checkboxes.append((name,var))
 
     # Dropdown-Menü für Dateiformat
     dropdown_frame = tk.Frame(root)
@@ -141,7 +137,13 @@ def start_gui():
         path_button.config(state="normal" if custom_path_var.get() else "disabled")
         if not custom_path_var.get():
             path_var.set(default_path)  # Zurücksetzen auf Root-Ordner der Datei
-
+   
+    def select_download_path():
+        """ Öffnet den Explorer, um einen Download-Pfad auszuwählen """
+        path = filedialog.askdirectory()
+        if path:
+            path_var.set(path)  # type: ignore # Setzt das Label auf den gewählten Pfad
+            
     path_checkbox = tk.Checkbutton(path_frame, text="Custom Download Path", variable=custom_path_var, command=toggle_path_selection)
     path_checkbox.pack(side="left", padx=5)
 
@@ -156,7 +158,7 @@ def start_gui():
     Download_Manger.start_download_able()
 
     def download():
-        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format)
+        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format,path_var)
         runable = downlodad_with_cmd(settings_dict, download_progressbar)
         Download_Manger.put(runable)
 
@@ -178,7 +180,7 @@ def start_gui():
     button_frame = tk.Frame(root)
     button_frame.pack(side="bottom", pady=10, fill="x")
 
-    abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15)
+    abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15,command=Download_Manger.abort_curent_prozess)
     abort_button.pack(side="right", expand=True, padx=10)
 
     root.mainloop()
