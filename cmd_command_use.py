@@ -2,6 +2,7 @@ import glob
 import os
 import platform
 import queue
+import signal
 import subprocess
 import threading
 import time
@@ -60,6 +61,7 @@ def get_latest_progress(output_text):
 
 def unix_delete_part_files(directory_path):
     # Create a pattern to match all files ending with .part
+    time.sleep(1)
     pattern = os.path.join(directory_path, "*.part")
     
     # Find all matching files
@@ -81,15 +83,14 @@ def unix_delete_part_files(directory_path):
     return count
 
 def windows_delete_part_files(directory_path):
-    # Count how many files we'll delete
+    time.sleep(1)
     count = 0
-    
+    print(os.listdir(directory_path))
     # Walk through all files in the directory
     for filename in os.listdir(directory_path):
         # Check if the file ends with .part
         if filename.endswith(".part"):
             file_path = os.path.join(directory_path, filename)
-            
             # Make sure it's a file, not a directory
             if os.path.isfile(file_path):
                 try:
@@ -120,12 +121,40 @@ class downlodad_with_cmd():
         
         self.command = " ".join(command_parts)
         print(self.command)
+        
     def abort_process(self):
         if platform.system() == "Windows":
-                print("Kill Prozess")
+                print(self.path)
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
                 windows_delete_part_files(self.path)
-        pass
+        else:
+            try:
+            # Get the process group ID (works if process was started with start_new_session=True)
+                pgid = os.getpgid(self.process.pid)
+            
+            # Send SIGTERM to entire process group
+                os.killpg(pgid, signal.SIGTERM)
+            
+            # Wait for graceful termination
+                deadline = time.time() + 2
+                while time.time() < deadline and self.process.poll() is None:
+                    time.sleep(0.1)
+            
+            # Force kill if still running
+                if self.process.poll() is None:
+                    os.killpg(pgid, signal.SIGKILL)
+                
+            # Ensure we reap the process status
+                self.process.wait()
+            except ProcessLookupError:
+            # Process already dead
+             pass
+            except PermissionError as e:
+                print(f"Permission denied: {e}", file=sys.stderr)
+                self.process.kill()
+            except Exception as e:
+                print(f"Unexpected error: {e}", file=sys.stderr)
+                self.process.kill()
     
     def run (self):
         process = subprocess.Popen(self.command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
@@ -157,10 +186,8 @@ class queue_download_with_cmd():
         self.q.put(run_able_objeckt)
         
     def abort_curent_prozess(self):
-        print("mion")
         if  self.runable is not None:
             assert isinstance(self.runable, downlodad_with_cmd), "Queue item is not a valid instance"
-            print("hallo")
             self.runable.abort_process()
                 
     def start_download_able(self):
