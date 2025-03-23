@@ -42,19 +42,14 @@ class ToolTip:
             self.tooltip_window = None
 
 
-
-
-
 def start_gui():
     root = tk.Tk()
     root.title("YT-DLP GUI")
     root.geometry('700x500')
     root.resizable(False, False)
 
-    # Standardpfad ist das Verzeichnis der ausführenden Datei
     default_path = os.path.dirname(os.path.abspath(__file__))
 
-    # Eingabefeld für YouTube-Link
     input_frame = tk.Frame(root)
     input_frame.pack(pady=10)
 
@@ -68,7 +63,6 @@ def start_gui():
 
     tk.Button(input_frame, text="Paste", command=paste_from_clipboard).pack(side='left', padx=5)
 
-    # Checkboxen
     checkbox_frame = tk.Frame(root)
     checkbox_frame.pack(pady=10)
 
@@ -100,9 +94,8 @@ def start_gui():
             checkbox = tk.Checkbutton(row_frame, text=name, variable=var)
             checkbox.pack(side="left", padx=5)
             ToolTip(checkbox, tooltip_text, delay=1000)
-            checkboxes.append((name,var))
+            checkboxes.append((name, var))
 
-    # Dropdown-Menü für Dateiformat
     dropdown_frame = tk.Frame(root)
     dropdown_frame.pack(pady=10)
 
@@ -119,30 +112,27 @@ def start_gui():
     }
 
     selected_format = tk.StringVar(root)
-    selected_format.set(list(file_formats.keys())[0])  # Standardwert setzen
+    selected_format.set(list(file_formats.keys())[0])
 
     dropdown_menu = tk.OptionMenu(dropdown_frame, selected_format, *file_formats.keys())
     dropdown_menu.pack(side='left', padx=5)
     ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)
 
-    # Download-Pfad
     path_frame = tk.Frame(root)
     path_frame.pack(pady=10)
 
     custom_path_var = tk.BooleanVar()
-    path_var = tk.StringVar(value=default_path)  # Standard = Ordner der Datei
+    path_var = tk.StringVar(value=default_path)
 
     def toggle_path_selection():
-        """ Aktiviert/Deaktiviert den Button zur Pfadauswahl """
         path_button.config(state="normal" if custom_path_var.get() else "disabled")
         if not custom_path_var.get():
-            path_var.set(default_path)  # Zurücksetzen auf Root-Ordner der Datei
-   
+            path_var.set(default_path)
+    
     def select_download_path():
-        """ Öffnet den Explorer, um einen Download-Pfad auszuwählen """
         path = filedialog.askdirectory()
         if path:
-            path_var.set(path)  # type: ignore # Setzt das Label auf den gewählten Pfad
+            path_var.set(path)
             
     path_checkbox = tk.Checkbutton(path_frame, text="Custom Download Path", variable=custom_path_var, command=toggle_path_selection)
     path_checkbox.pack(side="left", padx=5)
@@ -153,38 +143,30 @@ def start_gui():
     path_label = tk.Label(path_frame, textvariable=path_var, font=("Arial", 10))
     path_label.pack(side="left", padx=5)
 
-    # Download-Mangement erstellen
     Download_Manger = queue_download_with_cmd()
     Download_Manger.start_download_able()
 
     def download():
-        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format,path_var)
+        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
         runable = downlodad_with_cmd(settings_dict, download_progressbar)
         Download_Manger.put(runable)
 
-    # Download-Button über den anderen Buttons
-    download_button_frame = tk.Frame(root)
-    download_button_frame.pack(side="bottom", pady=5, fill="x")
-
-    download_button = tk.Button(download_button_frame, text="Download", font=("Arial", 10), width=15, command=download)
-    download_button.pack(expand=True, padx=10)
-
-    # Fortschrittsbalken unten über die gesamte Breite
     progressbar_frame = tk.Frame(root)
     progressbar_frame.pack(side="bottom", fill="x", padx=10, pady=5)
 
     download_progressbar = ttk.Progressbar(progressbar_frame, mode="determinate")
     download_progressbar.pack(fill="x", expand=True)
 
-    # Download- und Abort-Buttons unten
     button_frame = tk.Frame(root)
     button_frame.pack(side="bottom", pady=10, fill="x")
 
-    abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15,command=Download_Manger.abort_curent_prozess)
+    download_button = tk.Button(button_frame, text="Download", font=("Arial", 10), width=15, command=download)
+    download_button.pack(side="left", expand=True, padx=10)
+
+    abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15, command=Download_Manger.abort_curent_prozess)
     abort_button.pack(side="right", expand=True, padx=10)
 
     root.mainloop()
-
 
 if __name__ == "__main__":
     start_gui()
