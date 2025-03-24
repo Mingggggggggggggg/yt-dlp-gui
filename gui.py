@@ -72,7 +72,7 @@ def start_gui():
             "write-all-thumbnails": "Write all thumbnail image formats to disk",
             "list-thumbnails": "List available thumbnails of each video",
             "keep-video": "Originaldatei behalten",
-            "postprocessor-args": "Zusätzliche Argumente für Post-Processing"
+            "no-parts": "Don't create a part File at Downloading"
         },
         "Misc": {
             "abort-on-error": "Off by default",

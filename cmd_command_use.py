@@ -22,6 +22,7 @@ command_args = {
         "dump-json": "-j",
         "write-subs": "--write-subs",
         "write-auto-subs":"--write-auto-subs",
+        "no-parts":"--no-part",
         "M4A":"m4a",
         "MP4": "mp4",
         "FLV":"flv",
