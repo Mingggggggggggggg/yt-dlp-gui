@@ -149,12 +149,17 @@ class downlodad_with_cmd():
        
     
     def name_label_form_url(self):
-        result = subprocess.run(
+        process = subprocess.Popen(
             self.get_title_command,
-            capture_output=True, text=True, check=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=True
         )
+        stdout, stderr = process.communicate()
+        process.wait()
         if self.progress_bar is not None:
-            self.file_name_label["text"] = result.stdout.strip()
+            self.file_name_label["text"] = stdout.strip()
     
     def update_progressbar(self,update_value):
         if self.progress_bar is not None:

@@ -1,6 +1,6 @@
 {
     "checkboxes": {
-        "write-thumbnail": true,
+        "write-thumbnail": false,
         "write-all-thumbnails": false,
         "list-thumbnails": false,
         "keep-video": false,
@@ -10,6 +10,6 @@
         "write-subs": false,
         "write-auto-subs": false
     },
-    "selected_format": "WAV",
+    "selected_format": "M4A",
     "download_path": "c:\\Users\\linus\\Programmieren\\yt-dlp-gui"
 }
