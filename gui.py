@@ -169,15 +169,14 @@ def start_gui():
     abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15, command=Download_Manger.abort_curent_prozess)
     abort_button.pack(side="right", expand=True, padx=10)
 
-    root.mainloop()
-
-
-
     def on_closing():
         save_settings(checkboxes, selected_format, path_var)
         root.destroy()
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
+    
+    
+    root.mainloop()
 
 
 

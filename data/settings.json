@@ -1,0 +1,15 @@
+{
+    "checkboxes": {
+        "write-thumbnail": true,
+        "write-all-thumbnails": false,
+        "list-thumbnails": false,
+        "keep-video": false,
+        "no-parts": false,
+        "abort-on-error": false,
+        "dump-json": false,
+        "write-subs": false,
+        "write-auto-subs": false
+    },
+    "selected_format": "WAV",
+    "download_path": "c:\\Users\\linus\\Programmieren\\yt-dlp-gui"
+}

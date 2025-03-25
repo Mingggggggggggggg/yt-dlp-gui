@@ -6,11 +6,13 @@ import tkinter as tk
 import os
 
 def initialize():
-    if os.path.exists("settings.json"):
-        load_settings()
-    else:
-        create_json()
+    if not os.path.isdir("data"):
+        os.mkdir("data")
+    if  not os.path.exists("data/settings.json"):
+        create_json({})
 
+    
+        
 
 def create_dict_out_of_setting(input_flied:tk.Text,checkboxes:list,file_formate:tk.StringVar,real_path:tk.StringVar):
     json_dict = {
@@ -24,26 +26,26 @@ def create_dict_out_of_setting(input_flied:tk.Text,checkboxes:list,file_formate:
     return json_dict
 
 def create_json(dict_setting: dict):
-    with open("settings.json", "w") as json_file:
+    with open("data/settings.json", "w") as json_file:
         json.dump(dict_setting, json_file, indent=4)
     print("Standard-Einstellungen erstellt.")
 
 
-def load_settings(checkboxes, selected_format, path_var, filename="settings.json"):
+def load_settings(checkboxes, selected_format, path_var, filename="data/settings.json"):
     try:
         with open(filename, "r") as file:
             settings = json.load(file)
 
+        if "checkboxes" in list(settings):
+            for name, var in checkboxes:
+                if name in settings["checkboxes"]:
+                    var.set(settings["checkboxes"][name])
 
-        for name, var in checkboxes:
-            if name in settings["checkboxes"]:
-                var.set(settings["checkboxes"][name])
+        if "selected_format" in list(settings):
+            selected_format.set(settings["selected_format"])
 
-
-        selected_format.set(settings["selected_format"])
-
-
-        path_var.set(settings["download_path"])
+        if "download_path" in list(settings):
+            path_var.set(settings["download_path"])
 
         print("Einstellungen geladen.")
     except FileNotFoundError:
@@ -51,7 +53,7 @@ def load_settings(checkboxes, selected_format, path_var, filename="settings.json
 
 
 
-def save_settings(checkboxes, selected_format, path_var, filename="settings.json"):
+def save_settings(checkboxes, selected_format, path_var, filename="data/settings.json"):
     settings = {
         "checkboxes": {name: var.get() for name, var in checkboxes},
         "selected_format": selected_format.get(),
