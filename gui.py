@@ -3,11 +3,12 @@ from tkinter import filedialog
 import os
 from tkinter import ttk
 from cmd_command_use import downlodad_with_cmd, queue_download_with_cmd
-from settings import create_dict_out_of_setting
+from settings import create_dict_out_of_setting, save_settings, load_settings
+
+
 
 class ToolTip:
-    """ Klasse für Tooltip mit einstellbarer Verzögerung """
-    def __init__(self, widget, text, delay=1000):  # 1 Sekunde Verzögerung
+    def __init__(self, widget, text, delay=1000):
         self.widget = widget
         self.text = text
         self.tooltip_window = None
@@ -146,6 +147,8 @@ def start_gui():
     Download_Manger = queue_download_with_cmd()
     Download_Manger.start_download_able()
 
+    load_settings(checkboxes, selected_format, path_var)
+
     def download():
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
         runable = downlodad_with_cmd(settings_dict, download_progressbar)
@@ -166,7 +169,16 @@ def start_gui():
     abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15, command=Download_Manger.abort_curent_prozess)
     abort_button.pack(side="right", expand=True, padx=10)
 
+    def on_closing():
+        save_settings(checkboxes, selected_format, path_var)
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
+    
+    
     root.mainloop()
+
+
 
 if __name__ == "__main__":
     start_gui()
