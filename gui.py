@@ -187,9 +187,6 @@ def start_gui():
     load_settings(checkboxes, selected_format, path_var)
 
     def download():
-        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
-        runable = downlodad_with_cmd(settings_dict, download_progressbar)
-        Download_Manger.put(runable)
         download_frame = tk.Frame(downloads_container,bg='lightgray')
         download_frame.pack(fill=tk.X,padx=5,pady=5)
         # Filename label
@@ -206,18 +203,24 @@ def start_gui():
         #Abort Button 
         abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10)
         abort_button.pack(anchor='e', pady=2)
+        
+        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
+        runable = downlodad_with_cmd(settings_dict, progress,filename_label,speed_label)
+        Download_Manger.put(runable)
+        cmd_runables.append(runable)
+        download_frames.append(download_frame)
 
         
-
+    """
     progressbar_frame = tk.Frame(main_content)
     progressbar_frame.pack(side="bottom", fill="x", padx=10, pady=5)
 
     download_progressbar = ttk.Progressbar(progressbar_frame, mode="determinate")
     download_progressbar.pack(fill="x", expand=True)
-
+    """
     button_frame = tk.Frame(main_content)
     button_frame.pack(side="bottom", pady=10, fill="x")
-
+    
     download_button = tk.Button(button_frame, text="Download", font=("Arial", 10), width=15, command=download)
     download_button.pack(side="left", expand=True, padx=10)
 

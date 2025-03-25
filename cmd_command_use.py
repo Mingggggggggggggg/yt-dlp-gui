@@ -117,11 +117,12 @@ def updater():
 
 class downlodad_with_cmd():
     
-    def __init__(self,json_settings:dict,progress_bar:ttk.Progressbar=None):
+    def __init__(self,json_settings:dict,progress_bar:ttk.Progressbar=None,file_name_label:tk.Label=None,speed_label:tk.Label= None):
+         #Command for the Titel of the UI Elements 
+        self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings["youtube_url"]}"
         self.process = None
         self.path = json_settings["path"]
         command_parts = []
-        self.progress_bar = progress_bar
         command_parts.append(".\\yt-dlp.exe")
         command_parts.append(json_settings["youtube_url"])
         command_parts.append(" ".join([command_args["Re-encode"], command_args[json_settings["file_formate"]]])) 
@@ -133,10 +134,38 @@ class downlodad_with_cmd():
         
         self.command = " ".join(command_parts)
         print(self.command)
+        """
+           ↑  ↑   ↑
+        In this Part the command and more Logical parts are declart 
+
+            
+        In this Part the UI Elememnts are delcaret 
+          ↓  ↓  ↓
+        """
+        self.progress_bar = progress_bar
+        self.file_name_label = file_name_label
+        self .speed_label = speed_label
+        self.name_label_form_url()
+       
+    
+    def name_label_form_url(self):
+        result = subprocess.run(
+            self.get_title_command,
+            capture_output=True, text=True, check=True
+        )
+        if self.progress_bar is not None:
+            self.file_name_label["text"] = result.stdout.strip()
+    
+    def update_progressbar(self,update_value):
+        if self.progress_bar is not None:
+            self.progress_bar["value"] = update_value
         
+    def update_speed_label(self,update_speed):
+        if self.speed_label is not None:
+            self.speed_label["text"] = update_speed
+    
     def abort_process(self):
         if platform.system() == "Windows":
-                print(self.path)
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
                 windows_delete_part_files(self.path)
         else:
@@ -174,14 +203,15 @@ class downlodad_with_cmd():
         while True:
             output = process.stdout.readline()
             if(output == "" and process.poll() is not None):
-                self.progress_bar["value"] = 0
+                self.update_progressbar(100)
+                self.update_speed_label("Download Compelte")
                 self.process =None
                 break
             if output:
                 latest = get_latest_progress(output)
                 if latest is not None:
-                    if self.progress_bar is not None:
-                       self.progress_bar["value"] = latest['progress']
+                    self.update_progressbar(latest['progress'])
+                    self.update_speed_label(latest['speed'])
                     print(f"Progress: {latest['progress']}%, Speed: {latest['speed']}, ETA: {latest['eta']}")
         if process.returncode != 0:
             print(f"Command failed with error: {process.stderr.read()}")
@@ -190,8 +220,8 @@ class downlodad_with_cmd():
 class queue_download_with_cmd():
     
     def __init__(self,cmd_runable:list,runables_frames:list):
-        self.q_runables = []
-        self.q_download_frames = []
+        self.q_runables = cmd_runable
+        self.q_download_frames = runables_frames
         self.old_runables = []
         self.old_download_frames = []
         self.q = queue.Queue()
@@ -234,8 +264,6 @@ class queue_download_with_cmd():
                         self.old_download_frames.append(self.q_download_frames.pop(0))
                         self.isdownloading = False
                         self.runable = None
-
-                        
                 time.sleep(1)
         
         thread = threading.Thread(target=run_if_able, daemon=True)
