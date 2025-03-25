@@ -23,9 +23,10 @@ def create_dict_out_of_setting(input_flied:tk.Text,checkboxes:list,file_formate:
             json_dict[checkbox[0]] = checkbox[1].get()
     return json_dict
 
-def create_json(dict_setting:dict):
+def create_json(dict_setting: dict):
     with open("settings.json", "w") as json_file:
         json.dump(dict_setting, json_file, indent=4)
+    print("Standard-Einstellungen erstellt.")
 
 
 def load_settings(checkboxes, selected_format, path_var, filename="settings.json"):
@@ -33,20 +34,21 @@ def load_settings(checkboxes, selected_format, path_var, filename="settings.json
         with open(filename, "r") as file:
             settings = json.load(file)
 
-        # Checkbox-Werte setzen
+
         for name, var in checkboxes:
             if name in settings["checkboxes"]:
                 var.set(settings["checkboxes"][name])
 
-        # Dropdown-Wert setzen
+
         selected_format.set(settings["selected_format"])
 
-        # Pfad setzen
+
         path_var.set(settings["download_path"])
 
         print("Einstellungen geladen.")
     except FileNotFoundError:
         print("Keine gespeicherten Einstellungen gefunden.")
+
 
 
 def save_settings(checkboxes, selected_format, path_var, filename="settings.json"):

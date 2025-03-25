@@ -2,5 +2,5 @@ import gui
 import settings
 
 if __name__ == "__main__":
-    gui.start_gui()
     settings.initialize()
+    gui.start_gui()

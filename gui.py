@@ -8,7 +8,6 @@ from settings import create_dict_out_of_setting, save_settings, load_settings
 
 
 class ToolTip:
-    """ Klasse für Tooltip mit einstellbarer Verzögerung """
     def __init__(self, widget, text, delay=1000):
         self.widget = widget
         self.text = text
