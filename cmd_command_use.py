@@ -189,7 +189,11 @@ class downlodad_with_cmd():
 
 class queue_download_with_cmd():
     
-    def __init__(self):
+    def __init__(self,cmd_runable:list,runables_frames:list):
+        self.q_runables = []
+        self.q_download_frames = []
+        self.old_runables = []
+        self.old_download_frames = []
         self.q = queue.Queue()
         self.isdownloading = False
         self.runable = None
@@ -201,6 +205,20 @@ class queue_download_with_cmd():
         if  self.runable is not None:
             assert isinstance(self.runable, downlodad_with_cmd), "Queue item is not a valid instance"
             self.runable.abort_process()
+
+    def remove(self, run_able_objeckt):
+        
+        temp_list = []
+            
+        # Dequeue all items, filtering out the one to remove
+        while not self.q.empty():
+            item = self.q.get()
+            if item != run_able_objeckt:
+                temp_list.append(item)
+
+        # Re-enqueue the remaining items
+        for item in temp_list:
+            self.q.put(item)
                 
     def start_download_able(self):
         def run_if_able():
@@ -212,8 +230,11 @@ class queue_download_with_cmd():
                         assert isinstance(runable, downlodad_with_cmd), "Queue item is not a valid instance"
                         self.runable = runable
                         runable.run()
+                        self.old_runables.append(self.q_runables.pop(0))
+                        self.old_download_frames.append(self.q_download_frames.pop(0))
                         self.isdownloading = False
                         self.runable = None
+
                         
                 time.sleep(1)
         

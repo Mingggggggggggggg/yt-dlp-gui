@@ -46,12 +46,46 @@ class ToolTip:
 def start_gui():
     root = tk.Tk()
     root.title("YT-DLP GUI")
-    root.geometry('700x500')
+    root.geometry('900x500')
     root.resizable(False, False)
 
+    toolbar = tk.Frame(root, height=40, bg='#f0f0f0')
+    toolbar.pack(side=tk.TOP, fill=tk.X)
+    toolbar.pack_propagate(False)
+
+    sidebar_visible = tk.BooleanVar(value=False)
+
+    def toggle_sidebar():
+        if sidebar_visible.get():
+            sidebar.pack_forget()
+            sidebar_toggle_btn.config(text="▶ Show Downloads")
+            sidebar_visible.set(False)
+        else:
+            sidebar.pack(side=tk.LEFT, fill=tk.Y,padx=5)
+            sidebar_toggle_btn.config(text="◀ Hide Downloads")
+            sidebar_visible.set(True)
+    
+    sidebar_toggle_btn = tk.Button(
+    toolbar, 
+    text="▶ Show Downloads", 
+    command=toggle_sidebar
+    )
+    sidebar_toggle_btn.pack(side=tk.LEFT, padx=5, pady=5) 
+    sidebar = tk.Frame(root, width=300, bg='lightgray')
+    sidebar.pack_propagate(False)
+    
+
+    # Sidebar downloads container
+    downloads_container = tk.Frame(sidebar, bg='lightgray')
+    downloads_container.pack(fill=tk.BOTH, expand=False)
+
+    # Main content frame
+    main_content = tk.Frame(root)
+    main_content.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
+    
     default_path = os.path.dirname(os.path.abspath(__file__))
 
-    input_frame = tk.Frame(root)
+    input_frame = tk.Frame(main_content)
     input_frame.pack(pady=10)
 
     tk.Label(input_frame, text="YouTube-Link:", font=("Arial", 10)).pack(side='left')
@@ -63,8 +97,8 @@ def start_gui():
         input_field.insert(tk.END, root.clipboard_get())
 
     tk.Button(input_frame, text="Paste", command=paste_from_clipboard).pack(side='left', padx=5)
-
-    checkbox_frame = tk.Frame(root)
+    
+    checkbox_frame = tk.Frame(main_content)
     checkbox_frame.pack(pady=10)
 
     checkbox_categories = {
@@ -97,7 +131,7 @@ def start_gui():
             ToolTip(checkbox, tooltip_text, delay=1000)
             checkboxes.append((name, var))
 
-    dropdown_frame = tk.Frame(root)
+    dropdown_frame = tk.Frame(main_content)
     dropdown_frame.pack(pady=10)
 
     tk.Label(dropdown_frame, text="Select Fileformat:", font=("Arial", 10)).pack(side='left', padx=5)
@@ -119,7 +153,7 @@ def start_gui():
     dropdown_menu.pack(side='left', padx=5)
     ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)
 
-    path_frame = tk.Frame(root)
+    path_frame = tk.Frame(main_content)
     path_frame.pack(pady=10)
 
     custom_path_var = tk.BooleanVar()
@@ -144,7 +178,10 @@ def start_gui():
     path_label = tk.Label(path_frame, textvariable=path_var, font=("Arial", 10))
     path_label.pack(side="left", padx=5)
 
-    Download_Manger = queue_download_with_cmd()
+    cmd_runables = []
+    download_frames = []
+    
+    Download_Manger = queue_download_with_cmd(cmd_runables,download_frames)
     Download_Manger.start_download_able()
 
     load_settings(checkboxes, selected_format, path_var)
@@ -153,14 +190,32 @@ def start_gui():
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
         runable = downlodad_with_cmd(settings_dict, download_progressbar)
         Download_Manger.put(runable)
+        download_frame = tk.Frame(downloads_container,bg='lightgray')
+        download_frame.pack(fill=tk.X,padx=5,pady=5)
+        # Filename label
+        filename_label = tk.Label(download_frame,text= "haloo", bg='lightgray')
+        filename_label.pack(anchor='w')
+        # Progress bar
+        progress = ttk.Progressbar(download_frame, length=200, mode='determinate')
+        progress.pack(fill=tk.X, pady=2)
 
-    progressbar_frame = tk.Frame(root)
+        # Speed label
+        speed_label = tk.Label(download_frame, text="0 KB/s", bg='lightgray')
+        speed_label.pack(anchor='w')
+        
+        #Abort Button 
+        abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10)
+        abort_button.pack(anchor='e', pady=2)
+
+        
+
+    progressbar_frame = tk.Frame(main_content)
     progressbar_frame.pack(side="bottom", fill="x", padx=10, pady=5)
 
     download_progressbar = ttk.Progressbar(progressbar_frame, mode="determinate")
     download_progressbar.pack(fill="x", expand=True)
 
-    button_frame = tk.Frame(root)
+    button_frame = tk.Frame(main_content)
     button_frame.pack(side="bottom", pady=10, fill="x")
 
     download_button = tk.Button(button_frame, text="Download", font=("Arial", 10), width=15, command=download)
@@ -172,6 +227,7 @@ def start_gui():
     def on_closing():
         save_settings(checkboxes, selected_format, path_var)
         root.destroy()
+
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
     
