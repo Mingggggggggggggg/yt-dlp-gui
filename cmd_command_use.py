@@ -105,6 +105,16 @@ def windows_delete_part_files(directory_path):
     print(f"Total files deleted: {count}")
     return count
 
+def updater():
+    process = subprocess.Popen(".\\yt-dlp.exe -U", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
+    while True:
+        output = process.stdout.readline()
+        if(output == "" and process.poll() is not None):
+             break
+        if output:
+            print(output)
+    process.wait()
+
 class downlodad_with_cmd():
     
     def __init__(self,json_settings:dict,progress_bar:ttk.Progressbar=None):
