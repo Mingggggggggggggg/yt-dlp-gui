@@ -205,7 +205,7 @@ def start_gui():
         abort_button.pack(anchor='e', pady=2)
         
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
-        runable = downlodad_with_cmd(settings_dict, progress,filename_label,speed_label)
+        runable = downlodad_with_cmd(settings_dict,Download_Manger, progress,filename_label,speed_label,abort_button)
         Download_Manger.put(runable)
         cmd_runables.append(runable)
         download_frames.append(download_frame)

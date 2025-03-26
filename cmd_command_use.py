@@ -117,8 +117,10 @@ def updater():
 
 class downlodad_with_cmd():
     
-    def __init__(self,json_settings:dict,progress_bar:ttk.Progressbar=None,file_name_label:tk.Label=None,speed_label:tk.Label= None):
-         #Command for the Titel of the UI Elements 
+    def __init__(self,json_settings:dict,download_manager,progress_bar:ttk.Progressbar=None,file_name_label:tk.Label=None,speed_label:tk.Label= None,abort_button:tk.Button= None):
+        #Download Manager to remove the download form List
+        self.download_manager = download_manager
+        #Command for the Titel of the UI Elements 
         self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings["youtube_url"]}"
         self.process = None
         self.path = json_settings["path"]
@@ -145,6 +147,8 @@ class downlodad_with_cmd():
         self.progress_bar = progress_bar
         self.file_name_label = file_name_label
         self .speed_label = speed_label
+        if abort_button is not None:
+            abort_button.config(command=self.abort_self)
         self.name_label_form_url()
        
     
@@ -201,6 +205,10 @@ class downlodad_with_cmd():
             except Exception as e:
                 print(f"Unexpected error: {e}", file=sys.stderr)
                 self.process.kill()
+
+    def abort_self(self):
+        self.download_manager.abort_or_remove(self)
+
     
     def run (self):
         process = subprocess.Popen(self.command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
@@ -240,20 +248,41 @@ class queue_download_with_cmd():
         if  self.runable is not None:
             assert isinstance(self.runable, downlodad_with_cmd), "Queue item is not a valid instance"
             self.runable.abort_process()
+    
+    def abort_or_remove(self,runable):
+        if runable == self.runable:
+            self.abort_curent_prozess()
+        else:
+            self.remove()
 
     def remove(self, run_able_objeckt):
         
         temp_list = []
-            
+        removed_item = None
         # Dequeue all items, filtering out the one to remove
         while not self.q.empty():
             item = self.q.get()
             if item != run_able_objeckt:
                 temp_list.append(item)
-
+            else: 
+                removed_item = item
+                
         # Re-enqueue the remaining items
         for item in temp_list:
             self.q.put(item)
+        if removed_item is not None:
+            i=self.q_runables.index(removed_item)
+            dowload_frame = self.q_download_frames.pop(i)
+            dowload_frame.destroy()
+            self.q_runables.remove(removed_item)
+        else:
+            i = self.old_runables.index(run_able_objeckt)
+            self.old_runables.remove(run_able_objeckt)
+            dowload_frame = self.q_download_frames.pop(i)
+            dowload_frame.destroy()
+
+
+        
                 
     def start_download_able(self):
         def run_if_able():
