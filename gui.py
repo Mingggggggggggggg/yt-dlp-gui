@@ -178,10 +178,8 @@ def start_gui():
     path_label = tk.Label(path_frame, textvariable=path_var, font=("Arial", 10))
     path_label.pack(side="left", padx=5)
 
-    cmd_runables = []
-    download_frames = []
-    
-    Download_Manger = queue_download_with_cmd(cmd_runables,download_frames)
+   
+    Download_Manger = queue_download_with_cmd()
     Download_Manger.start_download_able()
 
     load_settings(checkboxes, selected_format, path_var)
@@ -207,8 +205,8 @@ def start_gui():
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
         runable = downlodad_with_cmd(settings_dict,Download_Manger, progress,filename_label,speed_label,abort_button)
         Download_Manger.put(runable)
-        cmd_runables.append(runable)
-        download_frames.append(download_frame)
+        Download_Manger.append(runable,download_frame)
+        
 
         
     """

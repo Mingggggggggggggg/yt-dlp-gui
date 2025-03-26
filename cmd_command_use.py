@@ -144,9 +144,12 @@ class downlodad_with_cmd():
         In this Part the UI Elememnts are delcaret 
           ↓  ↓  ↓
         """
+        #TODO Add Threadinding for for Label Call to not Frezeze UI Thread 
+        self.isDelete = False
         self.progress_bar = progress_bar
         self.file_name_label = file_name_label
         self .speed_label = speed_label
+
         if abort_button is not None:
             abort_button.config(command=self.abort_self)
         self.name_label_form_url()
@@ -161,19 +164,20 @@ class downlodad_with_cmd():
             shell=True
         )
         stdout, stderr = process.communicate()
-        process.wait()
         if self.progress_bar is not None:
             self.file_name_label["text"] = stdout.strip()
+
     
     def update_progressbar(self,update_value):
-        if self.progress_bar is not None:
+        if self.progress_bar is not None and not self.isDelete:
             self.progress_bar["value"] = update_value
         
     def update_speed_label(self,update_speed):
-        if self.speed_label is not None:
+        if self.speed_label is not None and not self.isDelete:
             self.speed_label["text"] = update_speed
     
     def abort_process(self):
+        self.isDelete = True
         if platform.system() == "Windows":
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
                 windows_delete_part_files(self.path)
@@ -232,9 +236,9 @@ class downlodad_with_cmd():
 
 class queue_download_with_cmd():
     
-    def __init__(self,cmd_runable:list,runables_frames:list):
-        self.q_runables = cmd_runable
-        self.q_download_frames = runables_frames
+    def __init__(self):
+        self.q_runables = []
+        self.q_download_frames = []
         self.old_runables = []
         self.old_download_frames = []
         self.q = queue.Queue()
@@ -249,11 +253,18 @@ class queue_download_with_cmd():
             assert isinstance(self.runable, downlodad_with_cmd), "Queue item is not a valid instance"
             self.runable.abort_process()
     
+    def append(self,runable:downlodad_with_cmd,frame:tk.Frame):
+        self.q_runables.append(runable)
+        self.q_download_frames.append(frame)
+
     def abort_or_remove(self,runable):
         if runable == self.runable:
             self.abort_curent_prozess()
+            self.old_runables.remove(runable)
+            dowload_frame = self.old_download_frames.pop(0)
+            dowload_frame.destroy()
         else:
-            self.remove()
+            self.remove(runable)
 
     def remove(self, run_able_objeckt):
         
