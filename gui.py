@@ -151,7 +151,7 @@ def start_gui():
 
     dropdown_menu = tk.OptionMenu(dropdown_frame, selected_format, *file_formats.keys())
     dropdown_menu.pack(side='left', padx=5)
-    ToolTip(dropdown_menu, "Wähle das gewünschte Dateiformat aus", delay=1000)
+    ToolTip(dropdown_menu, "Select Fileformat", delay=1000)
 
     path_frame = tk.Frame(main_content)
     path_frame.pack(pady=10)
@@ -172,7 +172,7 @@ def start_gui():
     path_checkbox = tk.Checkbutton(path_frame, text="Custom Download Path", variable=custom_path_var, command=toggle_path_selection)
     path_checkbox.pack(side="left", padx=5)
 
-    path_button = tk.Button(path_frame, text="Ordner auswählen", command=select_download_path, state="disabled")
+    path_button = tk.Button(path_frame, text="Select Folder", command=select_download_path, state="disabled")
     path_button.pack(side="left", padx=5)
 
     path_label = tk.Label(path_frame, textvariable=path_var, font=("Arial", 10))
