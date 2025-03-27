@@ -1,6 +1,7 @@
 # yt-dlp GUI
 
 Includes the exe from https://github.com/yt-dlp/yt-dlp 
+
 In future releases the exe won't be included and you have to add it to the root folder of the gui.
 
 
