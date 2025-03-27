@@ -281,7 +281,7 @@ class queue_download_with_cmd():
         # Re-enqueue the remaining items
         for item in temp_list:
             self.q.put(item)
-        if removed_item is not None:
+        if removed_item is not  None:
             i=self.q_runables.index(removed_item)
             dowload_frame = self.q_download_frames.pop(i)
             dowload_frame.destroy()
@@ -289,7 +289,7 @@ class queue_download_with_cmd():
         else:
             i = self.old_runables.index(run_able_objeckt)
             self.old_runables.remove(run_able_objeckt)
-            dowload_frame = self.q_download_frames.pop(i)
+            dowload_frame = self.old_download_frames.pop(i)
             dowload_frame.destroy()
 
 
@@ -307,6 +307,7 @@ class queue_download_with_cmd():
                         runable.run()
                         self.old_runables.append(self.q_runables.pop(0))
                         self.old_download_frames.append(self.q_download_frames.pop(0))
+                        print(self.old_download_frames)
                         self.isdownloading = False
                         self.runable = None
                 time.sleep(1)
