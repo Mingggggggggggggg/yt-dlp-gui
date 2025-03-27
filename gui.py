@@ -49,7 +49,6 @@ def start_gui():
     root.geometry('900x500')
     root.resizable(False, False)
 
-    root.iconbitmap("Icon\Kadse.ico")
 
     toolbar = tk.Frame(root, height=40, bg='#f0f0f0')
     toolbar.pack(side=tk.TOP, fill=tk.X)
