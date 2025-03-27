@@ -226,7 +226,7 @@ def start_gui():
     abort_button.pack(side="right", expand=True, padx=10)
 
     def on_closing():
-        save_settings(checkboxes, selected_format, path_var)
+        save_settings(checkboxes, selected_format,custom_path_var, path_var)
         root.destroy()
 
 

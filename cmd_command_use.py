@@ -61,6 +61,48 @@ def get_latest_progress(output_text):
         return results[-1]
     return None
 
+
+def unix_delete_files_starting_with(directory_path, prefix):
+    time.sleep(1)
+    # Create pattern to match files starting with prefix
+    pattern = os.path.join(directory_path, f"{prefix}*")
+    
+    # Find all matching files
+    matching_files = glob.glob(pattern)
+    
+    count = 0
+    # Delete each matched file
+    for file_path in matching_files:
+        try:
+            os.remove(file_path)
+            print(f"Deleted: {file_path}")
+            count += 1
+        except Exception as e:
+            print(f"Error deleting {file_path}: {e}")
+    
+    print(f"Total files deleted: {count}")
+    return count
+
+def windows_delete_files_starting_with(directory_path, prefix):
+    time.sleep(1)
+    count = 0
+    
+    # Check all files in directory
+    for filename in os.listdir(directory_path):
+        # Match files starting with prefix
+        if filename.startswith(prefix):
+            file_path = os.path.join(directory_path, filename)
+            if os.path.isfile(file_path):
+                try:
+                    os.remove(file_path)
+                    print(f"Deleted: {file_path}")
+                    count += 1
+                except Exception as e:
+                    print(f"Error deleting {file_path}: {e}")
+    
+    print(f"Total files deleted: {count}")
+    return count
+
 def unix_delete_part_files(directory_path):
     # Create a pattern to match all files ending with .part
     time.sleep(1)
@@ -149,10 +191,11 @@ class downlodad_with_cmd():
         self.progress_bar = progress_bar
         self.file_name_label = file_name_label
         self .speed_label = speed_label
-
         if abort_button is not None:
             abort_button.config(command=self.abort_self)
-        self.name_label_form_url()
+        self.name_label("DEFAULT NAME")
+        t = threading.Thread(target= self.name_label_form_url,daemon= True)
+        t.start()
        
     
     def name_label_form_url(self):
@@ -166,6 +209,10 @@ class downlodad_with_cmd():
         stdout, stderr = process.communicate()
         if self.progress_bar is not None:
             self.file_name_label["text"] = stdout.strip()
+
+    def name_label(self,label):
+        if self.progress_bar is not None:
+            self.file_name_label["text"] = label
 
     
     def update_progressbar(self,update_value):
@@ -181,6 +228,8 @@ class downlodad_with_cmd():
         if platform.system() == "Windows":
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
                 windows_delete_part_files(self.path)
+                if self.file_name_label is not None:
+                    windows_delete_files_starting_with(self.path,self.file_name_label["text"])
         else:
             try:
             # Get the process group ID (works if process was started with start_new_session=True)
@@ -200,6 +249,8 @@ class downlodad_with_cmd():
                 
             # Ensure we reap the process status
                 self.process.wait()
+                unix_delete_part_files(self.path)
+                unix_delete_files_starting_with(self.path,self.file_name_label["text"])
             except ProcessLookupError:
             # Process already dead
              pass
@@ -291,10 +342,7 @@ class queue_download_with_cmd():
             self.old_runables.remove(run_able_objeckt)
             dowload_frame = self.old_download_frames.pop(i)
             dowload_frame.destroy()
-
-
-        
-                
+   
     def start_download_able(self):
         def run_if_able():
             while True:
@@ -307,7 +355,6 @@ class queue_download_with_cmd():
                         runable.run()
                         self.old_runables.append(self.q_runables.pop(0))
                         self.old_download_frames.append(self.q_download_frames.pop(0))
-                        print(self.old_download_frames)
                         self.isdownloading = False
                         self.runable = None
                 time.sleep(1)

@@ -53,12 +53,13 @@ def load_settings(checkboxes, selected_format, path_var, filename="data/settings
 
 
 
-def save_settings(checkboxes, selected_format, path_var, filename="data/settings.json"):
+def save_settings(checkboxes, selected_format,path_bool:tk.BooleanVar, path_var, filename="data/settings.json"):
     settings = {
         "checkboxes": {name: var.get() for name, var in checkboxes},
         "selected_format": selected_format.get(),
-        "download_path": path_var.get()
     }
+    if path_bool.get():
+        settings["download_path"]= path_var.get()
 
     with open(filename, "w") as file:
         json.dump(settings, file, indent=4)
