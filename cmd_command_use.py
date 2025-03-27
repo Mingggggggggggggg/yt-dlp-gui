@@ -170,7 +170,7 @@ class downlodad_with_cmd():
         command_parts.append(".\\yt-dlp.exe")
         command_parts.append(json_settings["youtube_url"])
         command_parts.append(" ".join([command_args["Re-encode"], command_args[json_settings["file_formate"]]])) 
-        command_parts.append(" ".join(["-P",json_settings["path"]]))
+        command_parts.append(" ".join(["-P",'"',json_settings["path"],'"']))
         
         for arg in list(json_settings)[2:]:
             if arg in list(command_args):

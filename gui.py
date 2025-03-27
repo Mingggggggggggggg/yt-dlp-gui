@@ -84,7 +84,7 @@ def start_gui():
     main_content = tk.Frame(root)
     main_content.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
     
-    default_path = os.path.dirname(os.path.abspath(__file__))
+    default_path = os.path.dirname(os.getcwd())
 
     input_frame = tk.Frame(main_content)
     input_frame.pack(pady=10)
