@@ -3,5 +3,6 @@ __pycache__/
 .__pycache__\
 /__pycache__
 data/settings.json
-dist/
+dist
 build/
+start.spec
