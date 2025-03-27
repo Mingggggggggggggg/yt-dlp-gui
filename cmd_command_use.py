@@ -61,6 +61,48 @@ def get_latest_progress(output_text):
         return results[-1]
     return None
 
+
+def unix_delete_files_starting_with(directory_path, prefix):
+    time.sleep(1)
+    # Create pattern to match files starting with prefix
+    pattern = os.path.join(directory_path, f"{prefix}*")
+    
+    # Find all matching files
+    matching_files = glob.glob(pattern)
+    
+    count = 0
+    # Delete each matched file
+    for file_path in matching_files:
+        try:
+            os.remove(file_path)
+            print(f"Deleted: {file_path}")
+            count += 1
+        except Exception as e:
+            print(f"Error deleting {file_path}: {e}")
+    
+    print(f"Total files deleted: {count}")
+    return count
+
+def windows_delete_files_starting_with(directory_path, prefix):
+    time.sleep(1)
+    count = 0
+    
+    # Check all files in directory
+    for filename in os.listdir(directory_path):
+        # Match files starting with prefix
+        if filename.startswith(prefix):
+            file_path = os.path.join(directory_path, filename)
+            if os.path.isfile(file_path):
+                try:
+                    os.remove(file_path)
+                    print(f"Deleted: {file_path}")
+                    count += 1
+                except Exception as e:
+                    print(f"Error deleting {file_path}: {e}")
+    
+    print(f"Total files deleted: {count}")
+    return count
+
 def unix_delete_part_files(directory_path):
     # Create a pattern to match all files ending with .part
     time.sleep(1)
@@ -117,11 +159,14 @@ def updater():
 
 class downlodad_with_cmd():
     
-    def __init__(self,json_settings:dict,progress_bar:ttk.Progressbar=None):
+    def __init__(self,json_settings:dict,download_manager,progress_bar:ttk.Progressbar=None,file_name_label:tk.Label=None,speed_label:tk.Label= None,abort_button:tk.Button= None):
+        #Download Manager to remove the download form List
+        self.download_manager = download_manager
+        #Command for the Titel of the UI Elements 
+        self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings["youtube_url"]}"
         self.process = None
         self.path = json_settings["path"]
         command_parts = []
-        self.progress_bar = progress_bar
         command_parts.append(".\\yt-dlp.exe")
         command_parts.append(json_settings["youtube_url"])
         command_parts.append(" ".join([command_args["Re-encode"], command_args[json_settings["file_formate"]]])) 
@@ -133,12 +178,58 @@ class downlodad_with_cmd():
         
         self.command = " ".join(command_parts)
         print(self.command)
+        """
+           ↑  ↑   ↑
+        In this Part the command and more Logical parts are declart 
+
+            
+        In this Part the UI Elememnts are delcaret 
+          ↓  ↓  ↓
+        """
+        #TODO Add Threadinding for for Label Call to not Frezeze UI Thread 
+        self.isDelete = False
+        self.progress_bar = progress_bar
+        self.file_name_label = file_name_label
+        self .speed_label = speed_label
+        if abort_button is not None:
+            abort_button.config(command=self.abort_self)
+        self.name_label("DEFAULT NAME")
+        t = threading.Thread(target= self.name_label_form_url,daemon= True)
+        t.start()
+       
+    
+    def name_label_form_url(self):
+        process = subprocess.Popen(
+            self.get_title_command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            shell=True
+        )
+        stdout, stderr = process.communicate()
+        if self.progress_bar is not None:
+            self.file_name_label["text"] = stdout.strip()
+
+    def name_label(self,label):
+        if self.progress_bar is not None:
+            self.file_name_label["text"] = label
+
+    
+    def update_progressbar(self,update_value):
+        if self.progress_bar is not None and not self.isDelete:
+            self.progress_bar["value"] = update_value
         
+    def update_speed_label(self,update_speed):
+        if self.speed_label is not None and not self.isDelete:
+            self.speed_label["text"] = update_speed
+    
     def abort_process(self):
+        self.isDelete = True
         if platform.system() == "Windows":
-                print(self.path)
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
                 windows_delete_part_files(self.path)
+                if self.file_name_label is not None:
+                    windows_delete_files_starting_with(self.path,self.file_name_label["text"])
         else:
             try:
             # Get the process group ID (works if process was started with start_new_session=True)
@@ -158,6 +249,8 @@ class downlodad_with_cmd():
                 
             # Ensure we reap the process status
                 self.process.wait()
+                unix_delete_part_files(self.path)
+                unix_delete_files_starting_with(self.path,self.file_name_label["text"])
             except ProcessLookupError:
             # Process already dead
              pass
@@ -167,6 +260,10 @@ class downlodad_with_cmd():
             except Exception as e:
                 print(f"Unexpected error: {e}", file=sys.stderr)
                 self.process.kill()
+
+    def abort_self(self):
+        self.download_manager.abort_or_remove(self)
+
     
     def run (self):
         process = subprocess.Popen(self.command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
@@ -174,14 +271,15 @@ class downlodad_with_cmd():
         while True:
             output = process.stdout.readline()
             if(output == "" and process.poll() is not None):
-                self.progress_bar["value"] = 0
+                self.update_progressbar(100)
+                self.update_speed_label("Download Compelte")
                 self.process =None
                 break
             if output:
                 latest = get_latest_progress(output)
                 if latest is not None:
-                    if self.progress_bar is not None:
-                       self.progress_bar["value"] = latest['progress']
+                    self.update_progressbar(latest['progress'])
+                    self.update_speed_label(latest['speed'])
                     print(f"Progress: {latest['progress']}%, Speed: {latest['speed']}, ETA: {latest['eta']}")
         if process.returncode != 0:
             print(f"Command failed with error: {process.stderr.read()}")
@@ -189,7 +287,7 @@ class downlodad_with_cmd():
 
 class queue_download_with_cmd():
     
-    def __init__(self,cmd_runable:list,runables_frames:list):
+    def __init__(self):
         self.q_runables = []
         self.q_download_frames = []
         self.old_runables = []
@@ -205,21 +303,46 @@ class queue_download_with_cmd():
         if  self.runable is not None:
             assert isinstance(self.runable, downlodad_with_cmd), "Queue item is not a valid instance"
             self.runable.abort_process()
+    
+    def append(self,runable:downlodad_with_cmd,frame:tk.Frame):
+        self.q_runables.append(runable)
+        self.q_download_frames.append(frame)
+
+    def abort_or_remove(self,runable):
+        if runable == self.runable:
+            self.abort_curent_prozess()
+            self.old_runables.remove(runable)
+            dowload_frame = self.old_download_frames.pop(0)
+            dowload_frame.destroy()
+        else:
+            self.remove(runable)
 
     def remove(self, run_able_objeckt):
         
         temp_list = []
-            
+        removed_item = None
         # Dequeue all items, filtering out the one to remove
         while not self.q.empty():
             item = self.q.get()
             if item != run_able_objeckt:
                 temp_list.append(item)
-
+            else: 
+                removed_item = item
+                
         # Re-enqueue the remaining items
         for item in temp_list:
             self.q.put(item)
-                
+        if removed_item is not  None:
+            i=self.q_runables.index(removed_item)
+            dowload_frame = self.q_download_frames.pop(i)
+            dowload_frame.destroy()
+            self.q_runables.remove(removed_item)
+        else:
+            i = self.old_runables.index(run_able_objeckt)
+            self.old_runables.remove(run_able_objeckt)
+            dowload_frame = self.old_download_frames.pop(i)
+            dowload_frame.destroy()
+   
     def start_download_able(self):
         def run_if_able():
             while True:
@@ -234,8 +357,6 @@ class queue_download_with_cmd():
                         self.old_download_frames.append(self.q_download_frames.pop(0))
                         self.isdownloading = False
                         self.runable = None
-
-                        
                 time.sleep(1)
         
         thread = threading.Thread(target=run_if_able, daemon=True)

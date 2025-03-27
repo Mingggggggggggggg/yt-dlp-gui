@@ -178,18 +178,13 @@ def start_gui():
     path_label = tk.Label(path_frame, textvariable=path_var, font=("Arial", 10))
     path_label.pack(side="left", padx=5)
 
-    cmd_runables = []
-    download_frames = []
-    
-    Download_Manger = queue_download_with_cmd(cmd_runables,download_frames)
+   
+    Download_Manger = queue_download_with_cmd()
     Download_Manger.start_download_able()
 
     load_settings(checkboxes, selected_format, path_var)
 
     def download():
-        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
-        runable = downlodad_with_cmd(settings_dict, download_progressbar)
-        Download_Manger.put(runable)
         download_frame = tk.Frame(downloads_container,bg='lightgray')
         download_frame.pack(fill=tk.X,padx=5,pady=5)
         # Filename label
@@ -206,18 +201,24 @@ def start_gui():
         #Abort Button 
         abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10)
         abort_button.pack(anchor='e', pady=2)
-
+        
+        settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
+        runable = downlodad_with_cmd(settings_dict,Download_Manger, progress,filename_label,speed_label,abort_button)
+        Download_Manger.put(runable)
+        Download_Manger.append(runable,download_frame)
         
 
+        
+    """
     progressbar_frame = tk.Frame(main_content)
     progressbar_frame.pack(side="bottom", fill="x", padx=10, pady=5)
 
     download_progressbar = ttk.Progressbar(progressbar_frame, mode="determinate")
     download_progressbar.pack(fill="x", expand=True)
-
+    """
     button_frame = tk.Frame(main_content)
     button_frame.pack(side="bottom", pady=10, fill="x")
-
+    
     download_button = tk.Button(button_frame, text="Download", font=("Arial", 10), width=15, command=download)
     download_button.pack(side="left", expand=True, padx=10)
 
@@ -225,7 +226,7 @@ def start_gui():
     abort_button.pack(side="right", expand=True, padx=10)
 
     def on_closing():
-        save_settings(checkboxes, selected_format, path_var)
+        save_settings(checkboxes, selected_format,custom_path_var, path_var)
         root.destroy()
 
 
