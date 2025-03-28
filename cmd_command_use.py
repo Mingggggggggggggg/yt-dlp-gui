@@ -55,6 +55,20 @@ def parse_download_output(output_text):
     
     return results
 
+def extract_filename_info(output_text):
+    pattern = r'\[download\]\s+Destination:\s+(.*?)\.(\w+)$'
+    
+    # Search for the pattern in the output text
+    match = re.search(pattern, output_text)
+    
+    if not match:
+        return None
+    
+    return {
+        'filename': match.group(1).strip(),
+        'extension': match.group(2)
+    }
+
 def get_latest_progress(output_text):
     results = parse_download_output(output_text)
     if results:
@@ -160,10 +174,12 @@ def updater():
 class downlodad_with_cmd():
     
     def __init__(self,json_settings:dict,download_manager,progress_bar:ttk.Progressbar=None,file_name_label:tk.Label=None,speed_label:tk.Label= None,abort_button:tk.Button= None):
+        #Filename with down Load id for Save Dellting of Fiels
+        self.filename_with_id = None    
         #Download Manager to remove the download form List
         self.download_manager = download_manager
         #Command for the Titel of the UI Elements 
-        self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings["youtube_url"]}"
+        self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings['youtube_url']}"
         self.process = None
         self.path = json_settings["path"]
         command_parts = []
@@ -228,8 +244,8 @@ class downlodad_with_cmd():
         if platform.system() == "Windows":
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
                 windows_delete_part_files(self.path)
-                #if self.file_name_label is not None:
-                   # windows_delete_files_starting_with(self.path,self.file_name_label["text"])
+                if self.filename_with_id is not None:
+                    windows_delete_files_starting_with(self.path,self.filename_with_id)
         else:
             try:
             # Get the process group ID (works if process was started with start_new_session=True)
@@ -250,7 +266,8 @@ class downlodad_with_cmd():
             # Ensure we reap the process status
                 self.process.wait()
                 unix_delete_part_files(self.path)
-                #unix_delete_files_starting_with(self.path,self.file_name_label["text"])
+                if self.filename_with_id is not None:
+                    unix_delete_files_starting_with(self.path,self.filename_with_id)
             except ProcessLookupError:
             # Process already dead
              pass
@@ -276,11 +293,16 @@ class downlodad_with_cmd():
                 self.process =None
                 break
             if output:
+                file_data = extract_filename_info(output)
                 latest = get_latest_progress(output)
+                if file_data is not None:
+                    self.filename_with_id = file_data["filename"]
+                    print(self.filename_with_id)
                 if latest is not None:
                     self.update_progressbar(latest['progress'])
                     self.update_speed_label(latest['speed'])
                     print(f"Progress: {latest['progress']}%, Speed: {latest['speed']}, ETA: {latest['eta']}")
+
         if process.returncode != 0:
             print(f"Command failed with error: {process.stderr.read()}")
 
