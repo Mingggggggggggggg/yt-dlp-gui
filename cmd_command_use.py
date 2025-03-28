@@ -228,8 +228,8 @@ class downlodad_with_cmd():
         if platform.system() == "Windows":
                 subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
                 windows_delete_part_files(self.path)
-                if self.file_name_label is not None:
-                    windows_delete_files_starting_with(self.path,self.file_name_label["text"])
+                #if self.file_name_label is not None:
+                   # windows_delete_files_starting_with(self.path,self.file_name_label["text"])
         else:
             try:
             # Get the process group ID (works if process was started with start_new_session=True)
@@ -250,7 +250,7 @@ class downlodad_with_cmd():
             # Ensure we reap the process status
                 self.process.wait()
                 unix_delete_part_files(self.path)
-                unix_delete_files_starting_with(self.path,self.file_name_label["text"])
+                #unix_delete_files_starting_with(self.path,self.file_name_label["text"])
             except ProcessLookupError:
             # Process already dead
              pass
