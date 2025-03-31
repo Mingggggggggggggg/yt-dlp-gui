@@ -338,7 +338,14 @@ class queue_download_with_cmd():
             dowload_frame.destroy()
         else:
             self.remove(runable)
-
+    def destory_all(self):
+        with self.q.mutex:
+            self.q.queue.clear()
+        self.abort_curent_prozess()
+        self.q_runables.clear()
+        self.q_download_frames.clear()
+        self.old_runables.clear()
+        self.old_download_frames.clear()
     def remove(self, run_able_objeckt):
         
         temp_list = []

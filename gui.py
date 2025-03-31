@@ -222,10 +222,10 @@ def start_gui():
     
     download_button = tk.Button(button_frame, text="Download", font=("Arial", 10), width=15, command=download)
     download_button.pack(side="left", expand=True, padx=10)
-
+    """
     abort_button = tk.Button(button_frame, text="Abort", font=("Arial", 10), width=15, command=Download_Manger.abort_curent_prozess)
     abort_button.pack(side="right", expand=True, padx=10)
-
+    """
     def on_closing():
         save_settings(checkboxes, selected_format,custom_path_var, path_var)
         root.destroy()
