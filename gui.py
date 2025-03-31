@@ -50,7 +50,7 @@ def start_gui():
     root.resizable(False, False)
 
 
-    toolbar = tk.Frame(root, height=40, bg='#f0f0f0')
+    toolbar = tk.Frame(root, height=40)
     toolbar.pack(side=tk.TOP, fill=tk.X)
     toolbar.pack_propagate(False)
 
@@ -72,7 +72,7 @@ def start_gui():
     command=toggle_sidebar
     )
     sidebar_toggle_btn.pack(side=tk.LEFT, padx=5, pady=5) 
-    sidebar = tk.Frame(root, width=300, bg='lightgray')
+    sidebar = tk.Frame(root, width=300)
     sidebar.pack_propagate(False)
     
 
