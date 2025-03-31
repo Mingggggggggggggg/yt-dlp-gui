@@ -79,7 +79,7 @@ def get_latest_progress(output_text):
 def unix_delete_files_starting_with(directory_path, prefix):
     time.sleep(1)
     # Create pattern to match files starting with prefix
-    pattern = os.path.join(directory_path, prefix+"*")
+    pattern = os.path.join(directory_path, f"{prefix}*")
     
     # Find all matching files
     matching_files = glob.glob(pattern)
