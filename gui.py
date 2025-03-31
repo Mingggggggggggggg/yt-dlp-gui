@@ -72,7 +72,7 @@ def start_gui():
     command=toggle_sidebar
     )
     sidebar_toggle_btn.pack(side=tk.LEFT, padx=5, pady=5) 
-    sidebar = tk.Frame(root, width=300)
+    sidebar = tk.Frame(root, width=300, bg='lightgray')
     sidebar.pack_propagate(False)
     
 
