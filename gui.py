@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 import os
 from tkinter import ttk
+from tkinter import messagebox
 from cmd_command_use import downlodad_with_cmd, queue_download_with_cmd
 from settings import create_dict_out_of_setting, save_settings, load_settings
 
@@ -228,7 +229,12 @@ def start_gui():
     """
     def on_closing():
         save_settings(checkboxes, selected_format,custom_path_var, path_var)
-        root.destroy()
+        if Download_Manger.getIsDownloading():
+            if messagebox.askyesno("Confirmation", "Are you sure you want to close the program?"):
+                Download_Manger.destory_all()
+                root.destroy()
+        else:
+            root.destroy()
 
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
