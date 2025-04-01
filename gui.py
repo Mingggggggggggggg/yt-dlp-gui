@@ -207,7 +207,7 @@ def start_gui():
         speed_label.pack(anchor='w')
         
         #Abort Button 
-        abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10,bg='lightgray',fg='black')
+        abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10,bg='lightgray',fg='black' ,borderwidth=0, highlightthickness=0)
         abort_button.pack(anchor='e', pady=2)
         if check_appearance():
             filename_label.config(fg='white')
