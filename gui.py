@@ -190,18 +190,18 @@ def start_gui():
         download_frame = tk.Frame(downloads_container,bg='lightgray')
         download_frame.pack(fill=tk.X,padx=5,pady=5)
         # Filename label
-        filename_label = tk.Label(download_frame,text= "haloo", bg='lightgray')
+        filename_label = tk.Label(download_frame,text= "haloo", bg='lightgray',fg='black')
         filename_label.pack(anchor='w')
         # Progress bar
         progress = ttk.Progressbar(download_frame, length=200, mode='determinate')
         progress.pack(fill=tk.X, pady=2)
 
         # Speed label
-        speed_label = tk.Label(download_frame, text="0 KB/s", bg='lightgray')
+        speed_label = tk.Label(download_frame, text="0 KB/s", bg='lightgray',fg='black')
         speed_label.pack(anchor='w')
         
         #Abort Button 
-        abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10)
+        abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10,bg='lightgray',fg='black')
         abort_button.pack(anchor='e', pady=2)
         
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
