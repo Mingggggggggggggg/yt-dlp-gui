@@ -165,7 +165,7 @@ def updater():
     if platform.system() == 'Windows':
         process = subprocess.Popen(".\\yt-dlp.exe -U", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
     else:
-        process = subprocess.Popen("./yt-dlp.exe -U", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
+        process = subprocess.Popen("./yt-dlp -U", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
     while True:
         output = process.stdout.readline()
         if(output == "" and process.poll() is not None):
@@ -187,8 +187,8 @@ class downlodad_with_cmd():
             self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings['youtube_url']}"
             command_parts.append(".\\yt-dlp.exe")
         else:
-            self.get_title_command = f"./yt-dlp.exe -e --no-warnings  {json_settings['youtube_url']}"
-            command_parts.append("./yt-dlp.exe")
+            self.get_title_command = f"./yt-dlp -e --no-warnings  {json_settings['youtube_url']}"
+            command_parts.append("./yt-dlp")
         self.process = None
         self.path = json_settings["path"]
         
