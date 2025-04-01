@@ -1,3 +1,4 @@
+import subprocess
 import tkinter as tk
 from tkinter import filedialog
 import os
@@ -7,6 +8,11 @@ from cmd_command_use import downlodad_with_cmd, queue_download_with_cmd
 from settings import create_dict_out_of_setting, save_settings, load_settings
 
 
+def check_appearance():
+    cmd = 'defaults read -g AppleInterfaceStyle'
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, shell=True)
+    return bool(p.communicate()[0])
 
 class ToolTip:
     def __init__(self, widget, text, delay=1000):
@@ -203,7 +209,9 @@ def start_gui():
         #Abort Button 
         abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10,bg='lightgray',fg='black')
         abort_button.pack(anchor='e', pady=2)
-        
+        if check_appearance():
+            filename_label.config(fg='white')
+            speed_label.config('white')
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
         runable = downlodad_with_cmd(settings_dict,Download_Manger, progress,filename_label,speed_label,abort_button)
         Download_Manger.put(runable)
