@@ -162,7 +162,10 @@ def windows_delete_part_files(directory_path):
     return count
 
 def updater():
-    process = subprocess.Popen(".\\yt-dlp.exe -U", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
+    if platform.system() == 'Windows':
+        process = subprocess.Popen(".\\yt-dlp.exe -U", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
+    else:
+        process = subprocess.Popen("./yt-dlp -U", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True,shell=True )
     while True:
         output = process.stdout.readline()
         if(output == "" and process.poll() is not None):
@@ -174,16 +177,22 @@ def updater():
 class downlodad_with_cmd():
     
     def __init__(self,json_settings:dict,download_manager,progress_bar:ttk.Progressbar=None,file_name_label:tk.Label=None,speed_label:tk.Label= None,abort_button:tk.Button= None):
+        command_parts = []
         #Filename with down Load id for Save Dellting of Fiels
         self.filename_with_id = None    
         #Download Manager to remove the download form List
         self.download_manager = download_manager
-        #Command for the Titel of the UI Elements 
-        self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings['youtube_url']}"
+        if platform.system() == "Windows":
+            #Command for the Titel of the UI Elements 
+            self.get_title_command = f".\\yt-dlp.exe -e --no-warnings  {json_settings['youtube_url']}"
+            command_parts.append(".\\yt-dlp.exe")
+        else:
+            self.get_title_command = f"./yt-dlp -e --no-warnings  {json_settings['youtube_url']}"
+            command_parts.append("./yt-dlp")
         self.process = None
         self.path = json_settings["path"]
-        command_parts = []
-        command_parts.append(".\\yt-dlp.exe")
+        
+        
         command_parts.append(json_settings["youtube_url"])
         command_parts.append(" ".join([command_args["Re-encode"], command_args[json_settings["file_formate"]]])) 
         command_parts.append(" ".join(["-P",'"',json_settings["path"],'"']))
@@ -256,15 +265,13 @@ class downlodad_with_cmd():
             
             # Wait for graceful termination
                 deadline = time.time() + 2
-                while time.time() < deadline and self.process.poll() is None:
+                while time.time() < deadline and self.process is not None:
                     time.sleep(0.1)
             
             # Force kill if still running
-                if self.process.poll() is None:
+                if self.process is not None:
                     os.killpg(pgid, signal.SIGKILL)
                 
-            # Ensure we reap the process status
-                self.process.wait()
                 unix_delete_part_files(self.path)
                 if self.filename_with_id is not None:
                     unix_delete_files_starting_with(self.path,self.filename_with_id)
@@ -330,6 +337,8 @@ class queue_download_with_cmd():
         self.q_runables.append(runable)
         self.q_download_frames.append(frame)
 
+    def getIsDownloading(self):
+        return self.isdownloading
     def abort_or_remove(self,runable):
         if runable == self.runable:
             self.abort_curent_prozess()

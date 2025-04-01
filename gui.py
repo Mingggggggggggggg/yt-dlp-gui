@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 import os
 from tkinter import ttk
+from tkinter import messagebox
 from cmd_command_use import downlodad_with_cmd, queue_download_with_cmd
 from settings import create_dict_out_of_setting, save_settings, load_settings
 
@@ -50,7 +51,7 @@ def start_gui():
     root.resizable(False, False)
 
 
-    toolbar = tk.Frame(root, height=40, bg='#f0f0f0')
+    toolbar = tk.Frame(root, height=40)
     toolbar.pack(side=tk.TOP, fill=tk.X)
     toolbar.pack_propagate(False)
 
@@ -189,18 +190,18 @@ def start_gui():
         download_frame = tk.Frame(downloads_container,bg='lightgray')
         download_frame.pack(fill=tk.X,padx=5,pady=5)
         # Filename label
-        filename_label = tk.Label(download_frame,text= "haloo", bg='lightgray')
+        filename_label = tk.Label(download_frame,text= "haloo", bg='lightgray',fg='black')
         filename_label.pack(anchor='w')
         # Progress bar
         progress = ttk.Progressbar(download_frame, length=200, mode='determinate')
         progress.pack(fill=tk.X, pady=2)
 
         # Speed label
-        speed_label = tk.Label(download_frame, text="0 KB/s", bg='lightgray')
+        speed_label = tk.Label(download_frame, text="0 KB/s", bg='lightgray',fg='black')
         speed_label.pack(anchor='w')
         
         #Abort Button 
-        abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10)
+        abort_button = tk.Button(download_frame, text="Abort", font=("Arial", 8), width=10,bg='lightgray',fg='black' ,borderwidth=0, highlightthickness=0)
         abort_button.pack(anchor='e', pady=2)
         
         settings_dict = create_dict_out_of_setting(input_field, checkboxes, selected_format, path_var)
@@ -228,7 +229,12 @@ def start_gui():
     """
     def on_closing():
         save_settings(checkboxes, selected_format,custom_path_var, path_var)
-        root.destroy()
+        if Download_Manger.getIsDownloading():
+            if messagebox.askyesno("Confirmation", "Are you sure you want to close the program?"):
+                Download_Manger.destory_all()
+                root.destroy()
+        else:
+            root.destroy()
 
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
