@@ -1,3 +1,6 @@
+import pathlib
+import platform
+import sys
 import tkinter as tk
 from tkinter import filedialog
 import os
@@ -85,8 +88,16 @@ def start_gui():
     main_content = tk.Frame(root)
     main_content.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
     
-    default_path = os.path.dirname(os.getcwd())
-
+    if platform.system() == "Windows":
+        default_path = os.path.dirname(os.getcwd())
+    else:
+        if getattr(sys, 'frozen', False):
+        # When the application is frozen (compiled as an executable)
+            default_path = os.path.dirname(sys.executable)
+        else:
+            # When running in a normal Python environment (script mode)
+            default_path = os.path.dirname(__file__)
+    print(default_path)
     input_frame = tk.Frame(main_content)
     input_frame.pack(pady=10)
 
