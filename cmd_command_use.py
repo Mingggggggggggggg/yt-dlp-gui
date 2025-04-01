@@ -265,15 +265,13 @@ class downlodad_with_cmd():
             
             # Wait for graceful termination
                 deadline = time.time() + 2
-                while time.time() < deadline and self.process.poll() is None:
+                while time.time() < deadline and self.process is not None:
                     time.sleep(0.1)
             
             # Force kill if still running
-                if self.process.poll() is None:
+                if self.process is not None:
                     os.killpg(pgid, signal.SIGKILL)
                 
-            # Ensure we reap the process status
-                self.process.wait()
                 unix_delete_part_files(self.path)
                 if self.filename_with_id is not None:
                     unix_delete_files_starting_with(self.path,self.filename_with_id)
