@@ -6,7 +6,8 @@ For Mac Users refer to the next chapter.
 
 ## For Mac Users
 We can't ship the .app so you need to create the executable yourself by using the following command:
-'chmod a+rx /Path/to/file'
+
+`chmod a+rx /Path/to/file`
 
 
 ## Requirements
