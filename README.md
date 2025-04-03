@@ -6,6 +6,7 @@
 - [Save/Load GUI Settings](https://github.com/Mingggggggggggggg/yt-dlp-gui/pull/2)
 - [Handy GUI for Downloading using yt-dlp](https://github.com/Mingggggggggggggg/yt-dlp-gui/commit/79e86c60b191c0d3fef510fac26c311b25ac4ba3)
 - [Sidebar and Download Queue](https://github.com/Mingggggggggggggg/yt-dlp-gui/commit/a6b427c4b05245b59679ea84ceebe1b4214dbcf8)
+- Support commonly used file formats.
 
 
 
