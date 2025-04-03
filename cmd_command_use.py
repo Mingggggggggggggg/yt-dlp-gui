@@ -175,15 +175,15 @@ def updater():
     process.wait()
 
 def change_working_dir():
-    if platform.system() == "Windows":
-        default_path = os.path.dirname(os.getcwd())
-    else:
-        if getattr(sys, 'frozen', False):
+    #if platform.system() == "Windows":
+    default_path = os.path.dirname(os.getcwd())
+    #else:
+    if getattr(sys, 'frozen', False):
         # When the application is frozen (compiled as an executable)
-            default_path = os.path.dirname(sys.executable)
-        else:
+        default_path = os.path.dirname(sys.executable)
+    else:
             # When running in a normal Python environment (script mode)
-            default_path = os.path.dirname(__file__)
+        default_path = os.path.dirname(__file__)
     os.chdir(default_path)
         
 
@@ -309,7 +309,7 @@ class downlodad_with_cmd():
             output = process.stdout.readline()
             if(output == "" and process.poll() is not None):
                 self.update_progressbar(100)
-                self.update_speed_label("Download Compelte")
+                self.update_speed_label("Download Complete")
                 self.process =None
                 break
             if output:
