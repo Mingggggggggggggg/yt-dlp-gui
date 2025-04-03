@@ -6,3 +6,4 @@ data/settings.json
 dist
 build/
 start.spec
+*.zip
